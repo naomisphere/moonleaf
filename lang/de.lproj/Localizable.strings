@@ -1,4 +1,4 @@
-"mgr_title" = "macpaper";
+"mgr_title" = "moonleaf";
 "mgr_wp_title" = "Hintergrundbilder";
 "mgr_browse_title" = "Durchsuchen";
 "add_wallpaper" = "Hintergrundbild hinzufügen";
@@ -29,12 +29,12 @@
 "sb_refresh" = "Aktualisieren";
 "sb_open_mgr" = "Manager öffnen";
 "sb_settings" = "Einstellungen";
-"sb_about" = "Über macpaper";
-"sb_about_text" = "Version %@ (%@)\n\nDer Hintergrundbild-Manager für macOS";
+"sb_about" = "Über moonleaf";
+"sb_about_text" = "Version %@ (%@)\n\nDer Live-Hintergrundbild-Manager für macOS";
 "sb_about_github" = "GitHub";
 "sb_about_kofi" = "Auf Ko-fi unterstützen";
 "sb_perst_tooltip" = "Hintergrundbild automatisch beim Anmelden starten";
-"sb_quit" = "macpaper beenden";
+"sb_quit" = "moonleaf beenden";
 
 "mgr_settings" = "Einstellungen";
 "settings" = "Einstellungen";
@@ -95,10 +95,11 @@
 "settings_general" = "Allgemein";
 "settings_startup" = "Start";
 "settings_auto_start" = "Beim Anmelden starten";
-"settings_auto_start_desc" = "macpaper automatisch beim Anmelden starten";
+"settings_auto_start_desc" = "moonleaf automatisch beim Anmelden starten";
 "settings_updates" = "Updates";
 "settings_check_updates" = "Nach Updates suchen";
 "settings_check_updates_desc" = "Beim Start nach Updates suchen";
+"settings_update_log" = "Update-Protokoll";
 "settings_export" = "Export";
 "settings_export_folder" = "Export-Ordner";
 "settings_export_folder_desc" = "Wählen Sie, wo exportierte Hintergrundbilder gespeichert werden";
@@ -106,12 +107,33 @@
 "settings_choose_folder" = "Ordner wählen";
 "settings_reset_folder" = "Zurücksetzen";
 
+"settings_screensaver" = "Bildschirmschoner";
+"settings_use_screensaver" = "-";
+"settings_use_screensaver_desc" = "-";
+"settings_screensaver_hint" = "-";
+
 "settings_manager" = "Manager";
 "settings_playback" = "Wiedergabe";
+"settings_appearance" = "Darstellung";
+"settings_glass_bg" = "Glaseffekt";
+"settings_glass_bg_desc" = "Durchscheinenden Glaseffekt hinter der Wallpaper-Bibliothek anzeigen";
 
 "settings_behavior" = "Wiedergabeverhalten";
 "settings_volume" = "Wiedergabelautstärke";
 "settings_default_volume" = "Standardlautstärke";
+
+"settings_shuffle" = "Hintergrundbilder mischen";
+"settings_shuffle_desc" = "Automatisch durch die Bibliothek wechseln";
+"settings_shuffle_interval" = "Wechseln alle";
+"shuffle_interval_15min" = "15 Minuten";
+"shuffle_interval_1hr" = "1 Stunde";
+"shuffle_interval_3hr" = "3 Stunden";
+"shuffle_interval_daily" = "Täglich";
+
+"settings_sort" = "Standardsortierung";
+"sort_by_date" = "Hinzugefügt am";
+"sort_by_name" = "Name";
+"sort_by_size" = "Dateigröße";
 
 "settings_api_key" = "Wallhaven API-Schlüssel";
 "settings_api_key_description" = "Experimentell. Leeren, falls es Probleme verursacht.";
@@ -136,3 +158,8 @@
 "settings_select_folder" = "Ordner auswählen";
 "export_aspect_ratio" = "Seitenverhältnis";
 
+"favorites_filter" = "Favoriten";
+"show_favorites" = "Nur Favoriten";
+"show_all_wallpapers" = "Alle Hintergrundbilder";
+"no_favorites" = "Noch keine Favoriten";
+"no_favorites_desc" = "Tippen Sie auf den Stern eines Hintergrundbilds, um es zu favorisieren";

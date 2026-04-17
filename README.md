@@ -1,8 +1,9 @@
 <h1 align="center">
   <br>
-  <a href="http://macpaper.github.io"><img src="https://github.com/user-attachments/assets/0d2f86cb-a77d-4491-ab0f-f78bb61f0c66" alt="macpaper" width="150"></a>
+  <a href="http://github.com/naomisphere/moonleaf"><img src="https://github.com/user-attachments/assets/1f08015b-14bd-429b-b7dd-58d2bff99bc0" alt="moonleaf" width="150"></a>
   <br>
-  macpaper
+  moonleaf
+
   <br>
 </h1>
 <p align="center">
@@ -10,16 +11,16 @@
 </p>
 
 <p align="center">
-  <a title="platform" target="_blank" href="https://github.com/naomisphere/macpaper/releases/latest"><img src="https://img.shields.io/github/v/release/naomisphere/macpaper?style=flat&color=blue&include_prereleases"></a>
+  <a title="platform" target="_blank" href="https://github.com/naomisphere/moonleaf/releases/latest"><img src="https://img.shields.io/github/v/release/naomisphere/moonleaf?style=flat&color=blue&include_prereleases"></a>
   <img src="https://img.shields.io/badge/macOS-12%2B-2396ED?style=flat&logo=apple&logoColor=white" alt="platform" style="margin-right: 10px;" />
   
   <a href="./LICENSE">
-    <img src="https://img.shields.io/badge/License-GPLv3-red.svg?logo=gnu" alt="license" />
+    <img src="https://img.shields.io/badge/License-MIT-899ce8?logo=opensourceinitiative" alt="license" />
   </a>
 </p>
 
 <p align="center">
-macpaper is a feature-packed lightweight Wallpaper Manager for macOS, with support for gifs, videos, online wallpaper browsing, multi-monitor wallpapers, exporting, among other many things!
+moonleaf is a feature-packed Wallpaper Manager for macOS, with support for gifs, videos, online wallpaper browsing, multi-monitor wallpapers, exporting, among other many things!
 </p>
 
 <h1 align="center">
@@ -39,7 +40,7 @@ macpaper is a feature-packed lightweight Wallpaper Manager for macOS, with suppo
 
 ## 🍺 Homebrew (recommended)
 ```
-brew install --cask naomisphere/macpaper/macpaper --no-quarantine
+brew install --cask naomisphere/moonleaf/moonleaf --no-quarantine
 ```
 
 ## Manual
@@ -54,13 +55,14 @@ brew install --cask naomisphere/macpaper/macpaper --no-quarantine
 > You only need to do this once.
 
 <p align="center">
-  <a href="https://github.com/naomisphere/macpaper/releases/latest/download/macpaper.dmg" target="_self"><img width="200" src="https://github.com/user-attachments/assets/e2b187d1-8010-45cf-a9d4-e7ce5e2e677c" /></a>
+  <a href="https://github.com/naomisphere/moonleaf/releases/latest/download/moonleaf.dmg" target="_self"><img width="200" src="https://github.com/user-attachments/assets/e2b187d1-8010-45cf-a9d4-e7ce5e2e677c" /></a>
 </p>
 
 ---
 
 ## License
-macpaper is licensed under the GNU General Public License v3.0 (GPLv3). See the [LICENSE](./LICENSE) file for details.
+moonleaf is licensed under the [MIT License](./LICENSE). \
+Versions pre-v3.0 (macpaper) are licensed under the GNU General Public License v3.0 (GPLv3). 
 
 ## 🔨 Building from Source
 - Clone the repo
@@ -80,16 +82,16 @@ It is advised that you, alongside the strings file, place a file named `credit` 
 ### Quarantine
 If you suspect the app is quarantined, run the following on your Terminal after dragging the app to Applications:
 ```bash
-xattr -l /Applications/macpaper.app
+xattr -l /Applications/moonleaf.app
 ```
 Which shall output ```com.apple.quarantine: ...;{BROWSER};``` if the app IS quarantined.
 In that case, run:
 ```bash
-xattr -dr com.apple.quarantine /Applications/macpaper.app
+xattr -dr com.apple.quarantine /Applications/moonleaf.app
 ```
 
-### Apple could not verify "macpaper" is free of malware...
-You can fix this by doing the same steps as [here](https://github.com/naomisphere/macpaper/tree/main/README.md#installation).
+### Apple could not verify "moonleaf" is free of malware...
+You can fix this by doing the same steps as [here](https://github.com/naomisphere/moonleaf/tree/main/README.md#installation).
 
 ## ❤️ Support me
 ☕ If you like my work and want to support me, you can do so via Ko-fi:\

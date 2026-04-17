@@ -1,15 +1,17 @@
 //
-// BrowseView.swift
+//  BrowseView.swift
+//  moonleaf
 //
-// Created on September 17, 2025
-// naomisphere
+//  Copyright © 2026 naomisphere. All rights reserved.
 //
 
 import SwiftUI
 import Combine
+import AVKit
 
 struct BrowseView: View {
     @StateObject private var WHServ = WHService()
+    @StateObject private var pexelsServ = PexelsService()
     @State private var searchQuery = ""
     @State private var chosen_sorting: WHSort = .date_added
     @State private var chosen_order: WHOrder = .desc
@@ -23,6 +25,9 @@ struct BrowseView: View {
     @State private var isLoading = false
     @State private var showAPIKeyAlert = false
     @State private var apiKey = ""
+    @State private var pexelsAPIKey: String = ""
+    @State private var showPexelsKeyAlert = false
+    @State private var pexelsKeyError = false
     
     enum ResolutionFilter: String, CaseIterable {
         case hd = "HD"
@@ -75,11 +80,79 @@ struct BrowseView: View {
             } else {
                 contentView
             }
+
+            if chosen_prov.contains(.pexels) {
+                Button(action: {
+                    if let url = URL(string: "https://www.pexels.com") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }) {
+                    Text("Photos provided by Pexels")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.secondary.opacity(0.6))
+                        .padding(.vertical, 8)
+                }
+                .buttonStyle(.plain)
+            }
         }
         .onAppear {
-            if WHServ.wallpapers.isEmpty {
+            loadPexelsAPIKey()
+            if WHServ.wallpapers.isEmpty && pexelsServ.videos.isEmpty {
                 loadWallpapers()
             }
+        }
+        .alert("Pexels API Key", isPresented: $showPexelsKeyAlert) {
+            TextField("Enter API Key", text: $apiKey)
+            Button("Save") {
+                let keyToTry = apiKey
+                pexelsServ.validateAPIKey(keyToTry) { isValid in
+                    DispatchQueue.main.async {
+                        if isValid {
+                            pexelsAPIKey = keyToTry
+                            savePexelsAPIKey(keyToTry)
+                            pexelsServ.setAPIKey(keyToTry)
+                            chosen_prov.insert(.pexels)
+                            apiKey = ""
+                            loadWallpapers()
+                        } else {
+                            pexelsKeyError = true
+                        }
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                apiKey = ""
+            }
+        } message: {
+            Text("Get a free API key from pexels.com")
+        }
+        .alert("Invalid API Key", isPresented: $pexelsKeyError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("The API key you entered appeared to be invalid. Please check and try again.")
+        }
+    }
+    
+    private func loadPexelsAPIKey() {
+        let configDir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".config/moonleaf")
+        let keyFile = configDir.appendingPathComponent("pexels_api_key.txt")
+        
+        do {
+            pexelsAPIKey = try String(contentsOf: keyFile, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines)
+            pexelsServ.setAPIKey(pexelsAPIKey)
+        } catch {
+            pexelsAPIKey = ""
+        }
+    }
+    
+    private func savePexelsAPIKey(_ key: String) {
+        let configDir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".config/moonleaf")
+        let keyFile = configDir.appendingPathComponent("pexels_api_key.txt")
+        
+        do {
+            try FileManager.default.createDirectory(at: configDir, withIntermediateDirectories: true)
+            try key.write(to: keyFile, atomically: true, encoding: .utf8)
+        } catch {
         }
     }
     
@@ -88,11 +161,11 @@ struct BrowseView: View {
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.secondary)
-                    .font(.system(size: 14))
+                    .font(Font(font_loader.regular(size: 14)))
                 
                 TextField(NSLocalizedString("browse_search_placeholder", comment: "Search wallpapers..."), text: $searchQuery)
                     .textFieldStyle(PlainTextFieldStyle())
-                    .font(.system(size: 14))
+                    .font(Font(font_loader.regular(size: 14)))
                     .onSubmit {
                         currentPage = 1
                         loadWallpapers()
@@ -125,7 +198,7 @@ struct BrowseView: View {
                 showFilters.toggle()
             }) {
                 Image(systemName: "slider.horizontal.3")
-                    .font(.system(size: 14, weight: .medium))
+                    .font(Font(font_loader.regular(size: 14)))
                     .foregroundColor(.primary)
                     .padding(10)
                     .background {
@@ -149,12 +222,11 @@ struct BrowseView: View {
     private var filtersView: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text(NSLocalizedString("browse_filters", comment: "Filters"))
-                .font(.system(size: 16, weight: .semibold))
+                .font(Font(font_loader.bold(size: 16)))
             
-            // select provider...
             VStack(alignment: .leading, spacing: 12) {
                 Text(NSLocalizedString("browse_provider", comment: "Source"))
-                    .font(.system(size: 12, weight: .medium))
+                    .font(Font(font_loader.regular(size: 12)))
                     .foregroundColor(.secondary)
                 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
@@ -164,35 +236,37 @@ struct BrowseView: View {
                 }
             }
             
-            VStack(alignment: .leading, spacing: 12) {
-                Text(NSLocalizedString("browse_category", comment: "Category"))
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.secondary)
-                
-                Picker("", selection: $chosen_categ) {
-                    ForEach(WHCategory.allCases, id: \.self) { category in
-                        Text(category.displayName).tag(category)
+            if chosen_prov.contains(.wallhaven) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(NSLocalizedString("browse_category", comment: "Category"))
+                        .font(Font(font_loader.regular(size: 12)))
+                        .foregroundColor(.secondary)
+                    
+                    Picker("", selection: $chosen_categ) {
+                        ForEach(WHCategory.allCases, id: \.self) { category in
+                            Text(category.displayName).tag(category)
+                        }
                     }
+                    .pickerStyle(SegmentedPickerStyle())
                 }
-                .pickerStyle(SegmentedPickerStyle())
-            }
-            
-            VStack(alignment: .leading, spacing: 12) {
-                Text(NSLocalizedString("browse_purity", comment: "Purity"))
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.secondary)
                 
-                Picker("", selection: $chosen_purity) {
-                    ForEach(WHPurityStatus.allCases, id: \.self) { purity in
-                        Text(purity.displayName).tag(purity)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(NSLocalizedString("browse_purity", comment: "Purity"))
+                        .font(Font(font_loader.regular(size: 12)))
+                        .foregroundColor(.secondary)
+                    
+                    Picker("", selection: $chosen_purity) {
+                        ForEach(WHPurityStatus.allCases, id: \.self) { purity in
+                            Text(purity.displayName).tag(purity)
+                        }
                     }
+                    .pickerStyle(SegmentedPickerStyle())
                 }
-                .pickerStyle(SegmentedPickerStyle())
             }
             
             VStack(alignment: .leading, spacing: 12) {
                 Text(NSLocalizedString("browse_resolution", comment: "Resolution"))
-                    .font(.system(size: 12, weight: .medium))
+                    .font(Font(font_loader.regular(size: 12)))
                     .foregroundColor(.secondary)
                 
                 Picker("", selection: $selectedResolution) {
@@ -205,7 +279,7 @@ struct BrowseView: View {
             
             VStack(alignment: .leading, spacing: 12) {
                 Text(NSLocalizedString("browse_sort", comment: "Sort by"))
-                    .font(.system(size: 12, weight: .medium))
+                    .font(Font(font_loader.regular(size: 12)))
                     .foregroundColor(.secondary)
                 
                 Picker("", selection: $chosen_sorting) {
@@ -241,7 +315,11 @@ struct BrowseView: View {
             get: { chosen_prov.contains(provider) },
             set: { isSelected in
                 if isSelected {
-                    chosen_prov.insert(provider)
+                    if provider == .pexels && pexelsAPIKey.isEmpty {
+                        showPexelsKeyAlert = true
+                    } else {
+                        chosen_prov.insert(provider)
+                    }
                 } else {
                     chosen_prov.remove(provider)
                 }
@@ -249,20 +327,19 @@ struct BrowseView: View {
         )) {
             HStack(spacing: 6) {
                 Image(systemName: provider.icon)
-                    .font(.system(size: 11))
+                    .font(Font(font_loader.regular(size: 11)))
                 Text(provider.displayName)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(Font(font_loader.regular(size: 11)))
             }
         }
         .toggleStyle(CBToggle())
-        .disabled(provider != .wallhaven)
     }
     
     private var contentView: some View {
         ScrollView {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20), count: 3), spacing: 20) {
                 ForEach(filteredWallpapers) { wallpaper in
-                    WHWallpaperCard(wallpaper: wallpaper)
+                    BrowseWallpaperCard(item: wallpaper)
                         .onAppear {
                             if wallpaper.id == filteredWallpapers.last?.id {
                                 loadNextPage()
@@ -274,9 +351,16 @@ struct BrowseView: View {
         }
     }
     
-    private var filteredWallpapers: [WHWallpaper] {
-        return WHServ.wallpapers.filter { wallpaper in
-            activeResolutionFilter.matches(width: wallpaper.dimension_x, height: wallpaper.dimension_y)
+    private var filteredWallpapers: [AnyWallpaper] {
+        var items: [AnyWallpaper] = []
+        if chosen_prov.contains(.wallhaven) {
+            items.append(contentsOf: WHServ.wallpapers)
+        }
+        if chosen_prov.contains(.pexels) {
+            items.append(contentsOf: pexelsServ.videos)
+        }
+        return items.filter { item in
+            activeResolutionFilter.matches(width: item.width, height: item.height)
         }
     }
     
@@ -293,12 +377,12 @@ struct BrowseView: View {
     private var emptyStateView: some View {
         VStack(spacing: 16) {
             Image(systemName: "photo.on.rectangle")
-                .font(.system(size: 48))
+                .font(Font(font_loader.regular(size: 48)))
                 .foregroundColor(.secondary)
             Text(NSLocalizedString("browse_no_results", comment: "No wallpapers found"))
-                .font(.system(size: 16, weight: .medium))
+                .font(Font(font_loader.regular(size: 16)))
             Text(NSLocalizedString("browse_try_search", comment: "Try adjusting your search or filters"))
-                .font(.system(size: 14))
+                .font(Font(font_loader.regular(size: 14)))
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -306,28 +390,65 @@ struct BrowseView: View {
     
     private func loadWallpapers() {
         isLoading = true
-        WHServ.searchWallpapers(
-            query: searchQuery.isEmpty ? nil : searchQuery,
-            sorting: chosen_sorting,
-            order: chosen_order,
-            purity: chosen_purity,
-            category: chosen_categ,
-            page: currentPage
-        ) {
+        let group = DispatchGroup()
+        
+        if chosen_prov.contains(.wallhaven) {
+            group.enter()
+            WHServ.searchWallpapers(
+                query: searchQuery.isEmpty ? nil : searchQuery,
+                sorting: chosen_sorting,
+                order: chosen_order,
+                purity: chosen_purity,
+                category: chosen_categ,
+                page: currentPage
+            ) {
+                group.leave()
+            }
+        } else {
+            WHServ.wallpapers = []
+        }
+        
+        if chosen_prov.contains(.pexels) {
+            if !pexelsAPIKey.isEmpty {
+                group.enter()
+                pexelsServ.searchVideos(
+                    query: searchQuery.isEmpty ? "nature" : searchQuery,
+                    page: currentPage,
+                    perPage: 24
+                ) {
+                    group.leave()
+                }
+            } else {
+                pexelsServ.videos = []
+            }
+        } else {
+            pexelsServ.videos = []
+        }
+        
+        group.notify(queue: .main) {
             isLoading = false
         }
     }
     
     private func loadNextPage() {
         currentPage += 1
-        WHServ.loadMoreWallpapers(
-            query: searchQuery.isEmpty ? nil : searchQuery,
-            sorting: chosen_sorting,
-            order: chosen_order,
-            purity: chosen_purity,
-            category: chosen_categ,
-            page: currentPage
-        )
+        if chosen_prov.contains(.wallhaven) {
+            WHServ.loadMoreWallpapers(
+                query: searchQuery.isEmpty ? nil : searchQuery,
+                sorting: chosen_sorting,
+                order: chosen_order,
+                purity: chosen_purity,
+                category: chosen_categ,
+                page: currentPage
+            )
+        }
+        if chosen_prov.contains(.pexels) && !pexelsAPIKey.isEmpty {
+            pexelsServ.loadMoreVideos(
+                query: searchQuery.isEmpty ? "nature" : searchQuery,
+                page: currentPage,
+                perPage: 24
+            )
+        }
     }
 }
 
@@ -343,15 +464,70 @@ struct CBToggle: ToggleStyle {
     }
 }
 
-struct WHWallpaperCard: View {
-    let wallpaper: WHWallpaper
+protocol WallpaperItem: Identifiable {
+    var id: String { get }
+    var width: Int { get }
+    var height: Int { get }
+    var previewURL: URL? { get }
+    var downloadURL: URL? { get }
+    var isVideo: Bool { get }
+    var authorName: String? { get }
+    var authorURL: URL? { get }
+    var itemURL: URL? { get }
+}
+
+struct AnyWallpaper: Identifiable {
+    let id: String
+    let width: Int
+    let height: Int
+    let previewURL: URL?
+    let downloadURL: URL?
+    let isVideo: Bool
+    let authorName: String?
+    let authorURL: URL?
+    let itemURL: URL?
+    let provider: WallpaperProvider
+    private let original: any WallpaperItem
+    
+    init<T: WallpaperItem>(_ item: T, provider: WallpaperProvider) {
+        self.id = item.id
+        self.width = item.width
+        self.height = item.height
+        self.previewURL = item.previewURL
+        self.downloadURL = item.downloadURL
+        self.isVideo = item.isVideo
+        self.authorName = item.authorName
+        self.authorURL = item.authorURL
+        self.itemURL = item.itemURL
+        self.provider = provider
+        self.original = item
+    }
+}
+
+extension WHWallpaper: WallpaperItem {
+    var width: Int { dimension_x }
+    var height: Int { dimension_y }
+    var previewURL: URL? { URL(string: thumbs.large) }
+    var downloadURL: URL? { URL(string: path) }
+    var isVideo: Bool { false }
+    var authorName: String? { nil }
+    var authorURL: URL? { nil }
+    var itemURL: URL? { URL(string: url) }
+}
+
+struct BrowseWallpaperCard: View {
+    let item: AnyWallpaper
     @State private var image: NSImage?
     @State private var isLoading = true
     @State private var isHovered = false
-    @State private var downloadProgress: Double = 0
     @State private var isDownloading = false
+    @State private var isDownloaded = false
+    @State private var downloadProgress: Double = 0
     @State private var downloadTask: URLSessionDownloadTask?
+    @State private var progressObservation: NSKeyValueObservation?
     @State private var imageTask: URLSessionDataTask?
+    @State private var player: AVPlayer?
+    @State private var playerLayer: AVPlayerLayer?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -372,6 +548,20 @@ struct WHWallpaperCard: View {
                     }
                 }
                 
+                if item.isVideo {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Image(systemName: "play.circle.fill")
+                                .font(.title)
+                                .foregroundColor(.white)
+                                .shadow(radius: 2)
+                        }
+                        Spacer()
+                    }
+                    .padding(8)
+                }
+                
                 if isHovered {
                     VStack {
                         HStack {
@@ -379,81 +569,132 @@ struct WHWallpaperCard: View {
                             downloadButton
                         }
                         Spacer()
+                        if item.provider == .pexels {
+                            HStack {
+                                if let author = item.authorName, let url = item.authorURL {
+                                    Button(action: { NSWorkspace.shared.open(url) }) {
+                                        Text("Photo by \(author)")
+                                            .font(.system(size: 9, weight: .medium))
+                                            .foregroundColor(.white.opacity(0.8))
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(Capsule().fill(Color.black.opacity(0.4)))
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                                Spacer()
+                                Button(action: { if let url = item.itemURL { NSWorkspace.shared.open(url) } }) {
+                                    Text("on Pexels")
+                                        .font(.system(size: 9, weight: .medium))
+                                        .foregroundColor(.white.opacity(0.8))
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Capsule().fill(Color.black.opacity(0.4)))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
                     }
                     .padding(8)
                 }
-                
-                // tag:WORK
-                // buggy
+
                 if isDownloading {
                     ZStack {
                         Circle()
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 3)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 3)
                         
                         Circle()
-                            .trim(from: 0, to: downloadProgress)
-                            .stroke(Color.blue, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                            .trim(from: 0, to: max(0.05, downloadProgress))
+                            .stroke(Color.white, style: StrokeStyle(lineWidth: 3, lineCap: .round))
                             .rotationEffect(.degrees(-90))
-                            .animation(.easeInOut(duration: 0.3), value: downloadProgress)
                     }
-                    .frame(width: 30, height: 30)
+                    .frame(width: 32, height: 32)
+                    .background(Circle().fill(Color.black.opacity(0.4)))
                 }
             }
             .frame(height: 200)
             .cornerRadius(12)
-            .onHover { hovering in
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    isHovered = hovering
-                }
-            }
             
-            Text(wallpaper.id)
-                .font(.system(size: 12, weight: .medium))
+            Text(item.id)
+                .font(Font(font_loader.regular(size: 12)))
                 .lineLimit(1)
             
-            Text("\(wallpaper.dimension_x)x\(wallpaper.dimension_y)")
-                .font(.system(size: 10))
+            Text("\(item.width)x\(item.height)")
+                .font(Font(font_loader.regular(size: 10)))
                 .foregroundColor(.secondary)
         }
+        .contentShape(Rectangle())
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isHovered = hovering
+            }
+        }
         .onAppear {
-            loadImage()
+            loadPreview()
+            checkIfDownloaded()
         }
         .onDisappear {
             downloadTask?.cancel()
+            progressObservation?.invalidate()
             imageTask?.cancel()
         }
     }
     
     private var downloadButton: some View {
         Button(action: {
-            downloadWallpaper()
+            if !isDownloaded {
+                downloadWallpaper()
+            }
         }) {
-            Image(systemName: isDownloading ? "checkmark" : "arrow.down.circle.fill")
-                .font(.system(size: 20))
-                .foregroundColor(isDownloading ? .green : .white)
-                .padding(8)
-                .background(Circle().fill(Color.black.opacity(0.6)))
+            ZStack {
+                if isDownloaded {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(Font(font_loader.regular(size: 20)))
+                        .foregroundColor(.green)
+                } else if isDownloading {
+                    ProgressView()
+                        .scaleEffect(0.7)
+                        .brightness(1)
+                } else {
+                    Image(systemName: "arrow.down.circle.fill")
+                        .font(Font(font_loader.regular(size: 20)))
+                        .foregroundColor(.white)
+                }
+            }
+            .padding(8)
+            .background(Circle().fill(Color.black.opacity(0.6)))
         }
         .buttonStyle(PlainButtonStyle())
-        .disabled(isDownloading)
+        .disabled(isDownloading || isDownloaded)
+    }
+
+    private func checkIfDownloaded() {
+        guard let downloadURL = item.downloadURL else { return }
+        let home = FileManager.default.homeDirectoryForCurrentUser
+        let wpStorageDir = home.appendingPathComponent(".local/share/paper/wallpaper")
+        let fileName = "\(item.id)-\(downloadURL.lastPathComponent)"
+        let destinationURL = wpStorageDir.appendingPathComponent(fileName)
+        
+        if FileManager.default.fileExists(atPath: destinationURL.path) {
+            isDownloaded = true
+        }
     }
     
-    private func loadImage() {
-        guard let url = URL(string: wallpaper.thumbs.large) else {
+    private func loadPreview() {
+        guard let previewURL = item.previewURL else {
             isLoading = false
             return
         }
         
-        let cacheKey = url.absoluteString as NSString
+        let cacheKey = previewURL.absoluteString as NSString
         if let cachedImage = ThumbnailCache.shared.getImage(forKey: cacheKey as String) {
             self.image = cachedImage
             self.isLoading = false
             return
         }
         
-        imageTask = URLSession.shared.dataTask(with: url) { data, response, error in
+        imageTask = URLSession.shared.dataTask(with: previewURL) { data, response, error in
             if let error = error {
-                print("image load error: \(error)")
                 DispatchQueue.main.async {
                     self.isLoading = false
                 }
@@ -478,13 +719,7 @@ struct WHWallpaperCard: View {
     }
     
     private func downloadWallpaper(retryCount: Int = 0) {
-        isDownloading = true
-        downloadProgress = 0
-        
-        guard let sourceURL = URL(string: wallpaper.path) else {
-            isDownloading = false
-            return
-        }
+        guard let downloadURL = item.downloadURL else { return }
         
         let home = FileManager.default.homeDirectoryForCurrentUser
         let wpStorageDir = home.appendingPathComponent(".local/share/paper/wallpaper")
@@ -492,29 +727,25 @@ struct WHWallpaperCard: View {
         do {
             try FileManager.default.createDirectory(at: wpStorageDir, withIntermediateDirectories: true)
             
-            let fileName = "wallhaven-\(wallpaper.id).\(sourceURL.pathExtension)"
+            let fileName = "\(item.id)-\(downloadURL.lastPathComponent)"
             let destinationURL = wpStorageDir.appendingPathComponent(fileName)
             
             if FileManager.default.fileExists(atPath: destinationURL.path) {
-                withAnimation {
-                    downloadProgress = 1.0
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.isDownloading = false
-                }
+                isDownloaded = true
                 return
             }
             
-            downloadTask = URLSession.shared.downloadTask(with: sourceURL) { tempURL, response, error in
-                defer {
-                    DispatchQueue.main.async {
-                        self.isDownloading = false
-                        self.downloadProgress = 0
-                    }
+            isDownloading = true
+            downloadProgress = 0
+            
+            downloadTask = URLSession.shared.downloadTask(with: downloadURL) { tempURL, response, error in
+                DispatchQueue.main.async {
+                    self.isDownloading = false
+                    self.progressObservation?.invalidate()
+                    self.progressObservation = nil
                 }
                 
                 if let error = error {
-                    print("download error: \(error)")
                     if retryCount < 2 {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                             self.downloadWallpaper(retryCount: retryCount + 1)
@@ -524,31 +755,27 @@ struct WHWallpaperCard: View {
                 }
                 
                 guard let tempURL = tempURL else {
-                    print("download error: no temporary file")
-                    if retryCount < 2 {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                            self.downloadWallpaper(retryCount: retryCount + 1)
-                        }
-                    }
                     return
                 }
                 
                 do {
+                    if FileManager.default.fileExists(atPath: destinationURL.path) {
+                        try? FileManager.default.removeItem(at: destinationURL)
+                    }
                     try FileManager.default.moveItem(at: tempURL, to: destinationURL)
-                    print("downloaded wallpaper to: \(destinationURL.path)")
                     
                     DispatchQueue.main.async {
+                        self.isDownloaded = true
                         NotificationCenter.default.post(
                             name: NSNotification.Name("WallpaperDownloadCompleted"),
                             object: nil
                         )
                     }
                 } catch {
-                    print("while moving file: \(error)")
                 }
             }
             
-            _ = downloadTask?.progress.observe(\.fractionCompleted) { progress, _ in
+            progressObservation = downloadTask?.progress.observe(\.fractionCompleted) { progress, _ in
                 DispatchQueue.main.async {
                     self.downloadProgress = progress.fractionCompleted
                 }
@@ -557,7 +784,6 @@ struct WHWallpaperCard: View {
             downloadTask?.resume()
             
         } catch {
-            print("while creating directory: \(error)")
             isDownloading = false
             downloadProgress = 0
         }
@@ -566,23 +792,25 @@ struct WHWallpaperCard: View {
 
 enum WallpaperProvider: String, CaseIterable {
     case wallhaven = "wallhaven"
+    case pexels = "pexels"
     
     var displayName: String {
         switch self {
         case .wallhaven: return "Wallhaven"
+        case .pexels: return "Pexels"
         }
     }
     
     var icon: String {
         switch self {
         case .wallhaven: return "globe"
+        case .pexels: return "video"
         }
     }
 }
 
-// WH service and blah blah
 class WHService: ObservableObject {
-    @Published var wallpapers: [WHWallpaper] = []
+    @Published var wallpapers: [AnyWallpaper] = []
     private let baseURL = "https://wallhaven.cc/api/v1/search"
     private var currentSeed: String?
     
@@ -619,8 +847,7 @@ class WHService: ObservableObject {
         URLSession.shared.dataTask(with: url) { data, _, error in
             defer { completion?() }
             
-            if let error = error {
-                print("while fetching wallpapers: \(error)")
+            if let _ = error {
                 return
             }
             
@@ -629,7 +856,7 @@ class WHService: ObservableObject {
             do {
                 let response = try JSONDecoder().decode(WHResponse.self, from: data)
                 DispatchQueue.main.async {
-                    self.wallpapers = response.data
+                    self.wallpapers = response.data.map { AnyWallpaper($0, provider: .wallhaven) }
                     if let seed = response.meta.seed {
                         self.currentSeed = seed
                     }
@@ -670,8 +897,7 @@ class WHService: ObservableObject {
         guard let url = components.url else { return }
         
         URLSession.shared.dataTask(with: url) { data, _, error in
-            if let error = error {
-                print("while getting more wallpapers: \(error)")
+            if let _ = error {
                 return
             }
             
@@ -680,7 +906,7 @@ class WHService: ObservableObject {
             do {
                 let response = try JSONDecoder().decode(WHResponse.self, from: data)
                 DispatchQueue.main.async {
-                    self.wallpapers.append(contentsOf: response.data)
+                    self.wallpapers.append(contentsOf: response.data.map { AnyWallpaper($0, provider: .wallhaven) })
                     if let seed = response.meta.seed {
                         self.currentSeed = seed
                     }
@@ -692,12 +918,174 @@ class WHService: ObservableObject {
     }
 }
 
+class PexelsService: ObservableObject {
+    @Published var videos: [AnyWallpaper] = []
+    private let baseURL = "https://api.pexels.com/v1/videos"
+    private var apiKey: String = ""
+    private var nextPageURL: String?
+    
+    func setAPIKey(_ key: String) {
+        apiKey = key
+    }
+
+    func validateAPIKey(_ key: String, completion: @escaping (Bool) -> Void) {
+        var components = URLComponents(string: "\(baseURL)/search")!
+        components.queryItems = [
+            URLQueryItem(name: "query", value: "test"),
+            URLQueryItem(name: "per_page", value: "1")
+        ]
+        guard let url = components.url else { completion(false); return }
+        var request = URLRequest(url: url)
+        request.addValue(key, forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { data, response, _ in
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200, let data = data {
+                do {
+                    _ = try JSONDecoder().decode(PexelsSearchResponse.self, from: data)
+                    completion(true)
+                } catch {
+                    completion(false)
+                }
+            } else {
+                completion(false)
+            }
+        }.resume()
+    }
+    
+    func searchVideos(query: String, page: Int = 1, perPage: Int = 15, completion: (() -> Void)? = nil) {
+        guard !apiKey.isEmpty else {
+            completion?()
+            return
+        }
+        
+        var components = URLComponents(string: "\(baseURL)/search")!
+        components.queryItems = [
+            URLQueryItem(name: "query", value: query),
+            URLQueryItem(name: "per_page", value: "\(perPage)"),
+            URLQueryItem(name: "page", value: "\(page)")
+        ]
+        
+        guard let url = components.url else { return }
+        
+        var request = URLRequest(url: url)
+        request.addValue(apiKey, forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { data, _, error in
+            defer { completion?() }
+            if let _ = error { return }
+            guard let data = data else { return }
+            
+            do {
+                let response = try JSONDecoder().decode(PexelsSearchResponse.self, from: data)
+                DispatchQueue.main.async {
+                    self.videos = response.videos.map { AnyWallpaper(PexelsVideoWrapper(video: $0), provider: .pexels) }
+                    self.nextPageURL = response.next_page
+                }
+            } catch {
+            }
+        }.resume()
+    }
+    
+    func loadMoreVideos(query: String, page: Int, perPage: Int = 15) {
+        guard !apiKey.isEmpty else { return }
+        
+        var components = URLComponents(string: "\(baseURL)/search")!
+        components.queryItems = [
+            URLQueryItem(name: "query", value: query),
+            URLQueryItem(name: "per_page", value: "\(perPage)"),
+            URLQueryItem(name: "page", value: "\(page)")
+        ]
+        
+        guard let url = components.url else { return }
+        
+        var request = URLRequest(url: url)
+        request.addValue(apiKey, forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { data, _, error in
+            if let _ = error { return }
+            guard let data = data else { return }
+            
+            do {
+                let response = try JSONDecoder().decode(PexelsSearchResponse.self, from: data)
+                DispatchQueue.main.async {
+                    self.videos.append(contentsOf: response.videos.map { AnyWallpaper(PexelsVideoWrapper(video: $0), provider: .pexels) })
+                    self.nextPageURL = response.next_page
+                }
+            } catch {
+            }
+        }.resume()
+    }
+}
+
+struct PexelsVideoWrapper: WallpaperItem {
+    let video: PexelsVideo
+    
+    var id: String { String(video.id) }
+    var width: Int { video.width }
+    var height: Int { video.height }
+    var previewURL: URL? { URL(string: video.image) }
+    var downloadURL: URL? {
+        let sorted = video.video_files.sorted { 
+            ($0.width ?? 0) * ($0.height ?? 0) > ($1.width ?? 0) * ($1.height ?? 0) 
+        }
+        if let best = sorted.first, let url = URL(string: best.link) {
+            return url
+        }
+        return nil
+    }
+    var isVideo: Bool { true }
+    var authorName: String? { video.user?.name }
+    var authorURL: URL? { video.user?.url != nil ? URL(string: video.user!.url!) : nil }
+    var itemURL: URL? { video.url != nil ? URL(string: video.url!) : nil }
+}
+
+struct PexelsSearchResponse: Codable {
+    let page: Int
+    let per_page: Int
+    let total_results: Int
+    let next_page: String?
+    let videos: [PexelsVideo]
+}
+
+struct PexelsVideo: Codable {
+    let id: Int
+    let width: Int
+    let height: Int
+    let url: String?
+    let image: String
+    let duration: Int?
+    let user: PexelsUser?
+    let video_files: [PexelsVideoFile]
+    let video_pictures: [PexelsVideoPicture]?
+}
+
+struct PexelsUser: Codable {
+    let id: Int?
+    let name: String?
+    let url: String?
+}
+
+struct PexelsVideoFile: Codable {
+    let id: Int
+    let quality: String?
+    let file_type: String?
+    let width: Int?
+    let height: Int?
+    let link: String
+}
+
+struct PexelsVideoPicture: Codable {
+    let id: Int?
+    let picture: String?
+    let nr: Int?
+}
+
 struct WHResponse: Codable {
     let data: [WHWallpaper]
     let meta: WHMeta
 }
 
-struct WHWallpaper: Codable, Identifiable {
+struct WHWallpaper: Codable {
     let id: String
     let url: String
     let short_url: String

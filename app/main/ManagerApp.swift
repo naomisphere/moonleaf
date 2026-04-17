@@ -1,4 +1,9 @@
-// ManagerApp.swift
+//
+//  ManagerApp.swift
+//  moonleaf
+//
+//  Copyright © 2026 naomisphere. All rights reserved.
+//
 
 import SwiftUI
 import AVKit
@@ -25,9 +30,14 @@ class MenuHandler: NSObject {
 struct ManagerView: View {
     @StateObject private var service = macpaperService()
     @State private var show_importer = false
+    @State private var importingFolder = false
+    @State private var showAddPopover = false
     @State private var file_drag = false
     @State private var show_wp_util_overlay = false
     @State private var overlay_chosen_wp: endup_wp? = nil
+    @State private var showFavoritesOnly = false
+    @State private var showSortDropdown = false
+    @State private var showWpActionsDropdown = false
     private let menuHandler = MenuHandler()
     
         var body: some View {
@@ -64,107 +74,228 @@ struct ManagerView: View {
         }
         .fileImporter(
             isPresented: $show_importer,
-            allowedContentTypes: [
-                UTType.movie,
-                UTType.gif,
-                UTType.jpeg,
-                UTType.png,
-                UTType(filenameExtension: "mp4")!,
-                UTType(filenameExtension: "mov")!,
-                UTType(filenameExtension: "gif")!,
-                UTType(filenameExtension: "jpg")!,
-                UTType(filenameExtension: "jpeg")!,
-                UTType(filenameExtension: "png")!
-            ],
+            allowedContentTypes: importingFolder ? [.folder] : [.movie, .image],
             allowsMultipleSelection: true
         ) { result in
             switch result {
             case .success(let urls):
                 for url in urls {
-                    import_wp(from: url)
+                    if importingFolder {
+                        import_folder(from: url)
+                    } else {
+                        import_wp(from: url)
+                    }
                 }
             case .failure(let error):
-                print("couldn't import file: \(error)")
+                print("import error: \(error)")
             }
         }
     }
-    
-    private var toolbarView: some View {
-        HStack(spacing: 16) {
-            SimpleButton(
-                title: NSLocalizedString("add_wallpaper", comment: "add wallpaper"),
-                icon: "plus",
-                isPrimary: true,
-                action: {
-                    show_importer = true
+        private var toolbarView: some View {
+        HStack(spacing: 12) {
+            Button(action: { showAddPopover.toggle() }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 13, weight: .bold))
+                    Text("add wallpaper")
+                        .font(.system(size: 13, weight: .semibold))
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 10, weight: .medium))
+                        .opacity(0.8)
                 }
-            )
+                .foregroundStyle(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .frame(width: 175)
+                .background {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(LinearGradient(colors: [Color(red: 0.42, green: 0.47, blue: 0.85), Color(red: 0.32, green: 0.37, blue: 0.75)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                }
+            }
+            .buttonStyle(.plain)
+            .popover(isPresented: $showAddPopover, arrowEdge: .bottom) {
+                VStack(spacing: 4) {
+                    Button(action: {
+                        importingFolder = false
+                        showAddPopover = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            show_importer = true
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "doc.fill")
+                            Text("file")
+                            Spacer()
+                        }
+                        .font(.system(size: 13, weight: .medium))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.001)))
+                    }
+                    .buttonStyle(.plain)
 
-            SimpleButton(
-                title: NSLocalizedString("mgr_settings", comment: "settings"),
-                icon: "gearshape",
-                isPrimary: false,
-                action: {
-                    show_settings()
+                    Button(action: {
+                        importingFolder = true
+                        showAddPopover = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            show_importer = true
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "folder.fill")
+                            Text("folder")
+                            Spacer()
+                        }
+                        .font(.system(size: 13, weight: .medium))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.001)))
+                    }
+                    .buttonStyle(.plain)
                 }
-            )
-        
-            Spacer()
-            
-            if service.current_wp != nil && !isStillWallpaper(service.current_wp!) {
-                Button(action: {
-                    service.wp_doPersist(!service.wp_is_agent)
-                }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: service.wp_is_agent ? "checkmark.circle.fill" : "circle")
-                            .font(.system(size: 13, weight: .medium))
-                        Text(NSLocalizedString("persist", comment: "persist toggle"))
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
-                    }
-                    .foregroundStyle(service.wp_is_agent ? .primary : .secondary)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .background {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(.regularMaterial.opacity(service.wp_is_agent ? 0.9 : 0.5))
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(.primary.opacity(service.wp_is_agent ? 0.3 : 0.2), lineWidth: 1)
-                            }
-                    }
-                }
-                .buttonStyle(.plain)
-                
-                SimpleButton(
-                    title: NSLocalizedString("unset_current", comment: "unset current wallpaper"),
-                    icon: "xmark",
-                    isPrimary: false,
-                    action: {
-                        service.unset_wp()
-                    }
-                )
+                .padding(8)
+                .frame(width: 160)
             }
 
-            SimpleButton(
-                title: NSLocalizedString("filter", comment: "Filter"),
-                icon: "line.3.horizontal.decrease.circle",
-                isPrimary: false,
-                action: {
-                    showFilterMenu()
+            Button(action: { show_settings() }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 13, weight: .medium))
+                    Text(NSLocalizedString("mgr_settings", comment: "settings"))
+                        .font(.system(size: 13, weight: .medium))
                 }
-            )
-            
-            SimpleButton(
-                title: NSLocalizedString("refresh", comment: "refresh wallpapers"),
-                icon: "arrow.clockwise",
-                isPrimary: false,
-                action: {
-                    service.fetch_wallpapers()
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(RoundedRectangle(cornerRadius: 12).fill(Color.primary.opacity(0.08)))
+            }
+            .buttonStyle(.plain)
+
+            Spacer()
+
+            if service.current_wp != nil {
+                Button(action: { showWpActionsDropdown.toggle() }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.system(size: 13))
+                        Text("Active Wallpaper")
+                            .font(.system(size: 13, weight: .semibold))
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Color.primary.opacity(showWpActionsDropdown ? 0.15 : 0.05)))
                 }
-            )
+                .buttonStyle(.plain)
+                .popover(isPresented: $showWpActionsDropdown, arrowEdge: .bottom) {
+                    VStack(spacing: 4) {
+                        if !isStillWallpaper(service.current_wp!) {
+                            Button(action: { service.wp_doPersist(!service.wp_is_agent); showWpActionsDropdown = false }) {
+                                HStack {
+                                    Image(systemName: service.wp_is_agent ? "checkmark.circle.fill" : "circle")
+                                    Text(NSLocalizedString("persist", comment: ""))
+                                    Spacer()
+                                }
+                                .font(.system(size: 13, weight: .medium))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.001)))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        Button(action: { service.unset_wp(); showWpActionsDropdown = false }) {
+                            HStack {
+                                Image(systemName: "xmark.circle")
+                                    .foregroundStyle(.red)
+                                Text(NSLocalizedString("unset_current", comment: ""))
+                                    .foregroundStyle(.red)
+                                Spacer()
+                            }
+                            .font(.system(size: 13, weight: .medium))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(RoundedRectangle(cornerRadius: 8).fill(Color.red.opacity(0.05)))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(8)
+                    .frame(width: 170)
+                }
+            }
+
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.2)) { showFavoritesOnly.toggle() }
+            }) {
+                HStack(spacing: 6) {
+                    Image(systemName: showFavoritesOnly ? "star.fill" : "star")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(showFavoritesOnly ? .yellow : .secondary)
+                    if showFavoritesOnly {
+                        Text(NSLocalizedString("favorites_filter", comment: ""))
+                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .foregroundStyle(.primary)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(.regularMaterial.opacity(showFavoritesOnly ? 0.9 : 0.5))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(showFavoritesOnly ? Color.yellow.opacity(0.4) : Color.primary.opacity(0.15), lineWidth: 1)
+                        }
+                }
+            }
+            .buttonStyle(.plain)
+
+            Button(action: { showSortDropdown.toggle() }) {
+                HStack(spacing: 6) {
+                    Text(service.localSort.displayName)
+                        .font(.system(size: 13, weight: .semibold))
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 10, weight: .semibold))
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(RoundedRectangle(cornerRadius: 12).fill(Color.primary.opacity(showSortDropdown ? 0.15 : 0.05)))
+            }
+            .buttonStyle(.plain)
+            .popover(isPresented: $showSortDropdown, arrowEdge: .bottom) {
+                VStack(spacing: 4) {
+                    ForEach(macpaperService.LocalSortMode.allCases, id: \.self) { mode in
+                        Button(action: { service.setLocalSort(mode); showSortDropdown = false }) {
+                            HStack {
+                                Text(mode.displayName)
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundStyle(service.localSort == mode ? .primary : .secondary)
+                                Spacer()
+                                if service.localSort == mode {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 11, weight: .semibold))
+                                }
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(service.localSort == mode ? 0.08 : 0.001)))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(8)
+                .frame(width: 160)
+            }
+
+            Button(action: { service.fetch_wallpapers() }) {
+                Image(systemName: "arrow.clockwise")
+                    .font(.system(size: 14, weight: .medium))
+                    .padding(10)
+                    .frame(height: 34)
+                    .background(RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.08)))
+            }
+            .buttonStyle(.plain)
         }
         .padding(.horizontal, 32)
-        .padding(.vertical, 20)
+        .padding(.vertical, 16)
         .background {
             RoundedRectangle(cornerRadius: 22)
                 .fill(.ultraThinMaterial.opacity(0.9))
@@ -264,25 +395,47 @@ private func findButton(with title: String, in view: NSView) -> NSButton? {
 }
     
     private var contentView: some View {
-        ZStack {
-            if service.isLoading {
-                loadingView
-                    .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .scale(scale: 0.9)),
-                        removal: .opacity.combined(with: .scale(scale: 1.1))
-                    ))
-            } else if service.wallpapers.isEmpty {
-                NoWpView
-                    .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .scale(scale: 0.95)),
-                        removal: .opacity
-                    ))
-            } else {
-                gridView
-                    .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .move(edge: .bottom)),
-                        removal: .opacity
-                    ))
+        VStack(spacing: 0) {
+            if !service.isAtRoot {
+                HStack {
+                    Button(action: { service.back() }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "arrow.left")
+                            Text("Back")
+                        }
+                        .font(.system(size: 13, weight: .medium))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.1)))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.leading, 32)
+                    .padding(.top, 16)
+                    
+                    Spacer()
+                }
+            }
+            
+            ZStack {
+                if service.isLoading {
+                    loadingView
+                        .transition(.asymmetric(
+                            insertion: .opacity.combined(with: .scale(scale: 0.9)),
+                            removal: .opacity.combined(with: .scale(scale: 1.1))
+                        ))
+                } else if service.wallpapers.isEmpty {
+                    NoWpView
+                        .transition(.asymmetric(
+                            insertion: .opacity.combined(with: .scale(scale: 0.95)),
+                            removal: .opacity
+                        ))
+                } else {
+                    gridView
+                        .transition(.asymmetric(
+                            insertion: .opacity.combined(with: .move(edge: .bottom)),
+                            removal: .opacity
+                        ))
+                }
             }
         }
         .animation(.easeInOut(duration: 0.4), value: service.isLoading)
@@ -342,12 +495,12 @@ private func findButton(with title: String, in view: NSView) -> NSButton? {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(40)
-        .onDrop(of: [.fileURL], isTargeted: $file_drag) { providers in
+        .onDrop(of: [.fileURL, .directory], isTargeted: $file_drag) { providers in
             drop_handle(providers)
         }
     }
     
-        private var gridView: some View {
+    private var gridView: some View {
         ScrollView {
             let columns = [
                 GridItem(.fixed(300), spacing: 30),
@@ -356,39 +509,38 @@ private func findButton(with title: String, in view: NSView) -> NSButton? {
             ]
             
             LazyVGrid(columns: columns, alignment: .center, spacing: 30) {
-                ForEach(Array(service.wallpapers.enumerated()), id: \.element.id) { index, wallpaper in
+                let displayed = showFavoritesOnly
+                    ? service.wallpapers.filter { service.isFavorite($0) }
+                    : service.wallpapers
+                ForEach(Array(displayed.enumerated()), id: \.element.id) { index, wallpaper in
                     WallpaperCard(
                         wallpaper: wallpaper,
                         isActive: service.current_wp == wallpaper.path,
                         cardIsSelected: service.selected_wp?.id == wallpaper.id,
                         onSelect: {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                service.set_wp(wallpaper)
-                            }
+                            withAnimation(.easeInOut(duration: 0.3)) { service.set_wp(wallpaper) }
                         },
                         onTap: {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                if service.selected_wp?.id == wallpaper.id {
-                                    service.select_wp(nil)
-                                } else {
-                                    service.select_wp(wallpaper)
+                            if wallpaper.isFolder {
+                                service.navigateTo(folder: wallpaper)
+                            } else {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    if service.selected_wp?.id == wallpaper.id {
+                                        service.select_wp(nil)
+                                    } else {
+                                        service.select_wp(wallpaper)
+                                    }
                                 }
                             }
                         },
                         onDelete: {
                             withAnimation(.easeInOut(duration: 0.4)) {
                                 delete_wp(wallpaper)
-                                if service.selected_wp?.id == wallpaper.id {
-                                    service.select_wp(nil)
-                                }
+                                if service.selected_wp?.id == wallpaper.id { service.select_wp(nil) }
                             }
                         },
-                        onRename: { newName in
-                            rename_wp(wallpaper, to: newName)
-                        },
-                        onExport: {
-                            export_wp(wallpaper)
-                        }
+                        onRename: { rename_wp(wallpaper, to: $0) },
+                        onExport: { export_wp(wallpaper) }
                     )
                     .environmentObject(service)
                     .frame(width: 300, height: 260)
@@ -421,28 +573,47 @@ private func findButton(with title: String, in view: NSView) -> NSButton? {
     
     private func import_wp(from url: URL) {
         let ext = url.pathExtension.lowercased()
-        guard ["mp4", "mov", "gif", "jpg", "jpeg", "png"].contains(ext) else {
-            return
-        }
+        guard ["mp4", "mov", "gif", "jpg", "jpeg", "png"].contains(ext) else { return }
         
         let wp_storage_dir = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".local/share/paper/wallpaper")
         
         do {
             try FileManager.default.createDirectory(at: wp_storage_dir, withIntermediateDirectories: true)
-            
-            let fileName = url.lastPathComponent
-            let destination = wp_storage_dir.appendingPathComponent(fileName)
+            let destination = wp_storage_dir.appendingPathComponent(url.lastPathComponent)
             
             if FileManager.default.fileExists(atPath: destination.path) {
-                try FileManager.default.removeItem(at: destination)
+                try? FileManager.default.removeItem(at: destination)
             }
             
-            try FileManager.default.copyItem(at: url, to: destination)
+            if service.importMethod == .link {
+                try FileManager.default.createSymbolicLink(at: destination, withDestinationURL: url.resolvingSymlinksInPath())
+            } else {
+                try FileManager.default.copyItem(at: url, to: destination)
+            }
             service.fetch_wallpapers()
-        } catch {
-            print(error)
-        }
+        } catch { print(error) }
+    }
+    
+    private func import_folder(from url: URL) {
+        let wp_storage_dir = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".local/share/paper/wallpaper")
+        
+        do {
+            try FileManager.default.createDirectory(at: wp_storage_dir, withIntermediateDirectories: true)
+            let destination = wp_storage_dir.appendingPathComponent(url.lastPathComponent)
+            
+            if FileManager.default.fileExists(atPath: destination.path) {
+                try? FileManager.default.removeItem(at: destination)
+            }
+            
+            if service.importMethod == .link {
+                try FileManager.default.createSymbolicLink(at: destination, withDestinationURL: url.resolvingSymlinksInPath())
+            } else {
+                try FileManager.default.copyItem(at: url, to: destination)
+            }
+            service.fetch_wallpapers()
+        } catch { print(error) }
     }
     
     private func delete_wp(_ wallpaper: endup_wp) {
@@ -633,7 +804,7 @@ struct SimpleButton: View {
     @State private var isHovered = false
     
     var body: some View {
-        Button(action: action) {
+        RippleButton(action: action) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
                     .font(.system(size: 13, weight: .medium))
@@ -652,7 +823,6 @@ struct SimpleButton: View {
                     }
             }
         }
-        .buttonStyle(.plain)
         .onHover { hovering in
             withAnimation(.easeOut(duration: 0.15)) {
                 isHovered = hovering
@@ -833,7 +1003,13 @@ struct WallpaperCard: View {
             
             let ext = (wallpaper.path as NSString).pathExtension.lowercased()
             
-            if ["gif", "jpg", "jpeg", "png"].contains(ext) {
+            if wallpaper.isFolder {
+                VStack(spacing: 12) {
+                    Image(systemName: "folder.fill")
+                        .font(.system(size: 48))
+                        .foregroundStyle(.secondary.opacity(0.8))
+                }
+            } else if ["gif", "jpg", "jpeg", "png"].contains(ext) {
                 LazyImagePreview(path: wallpaper.path)
             } else if ["mp4", "mov"].contains(ext) {
                 videoPreview(videoURL: URL(fileURLWithPath: wallpaper.path))
@@ -910,6 +1086,11 @@ struct WallpaperCard: View {
                                     .frame(width: 28, height: 28)
                             }
                     }
+
+                    FavoriteButton(
+                        isFavorite: service.isFavorite(wallpaper),
+                        action: { service.toggleFavorite(wallpaper) }
+                    )
                     
                     Spacer()
                     
@@ -1047,7 +1228,8 @@ struct WallpaperCard: View {
             HStack {
                 let ext = (wallpaper.path as NSString).pathExtension.lowercased()
                 
-                let fileType = ["mp4", "mov"].contains(ext) ? "video" :
+                let fileType = wallpaper.isFolder ? "folder" :
+                            ["mp4", "mov"].contains(ext) ? "video" :
                             ext == "gif" ? "gif" :
                             ["jpg", "jpeg", "png"].contains(ext) ? "image" : "unknown"
                 

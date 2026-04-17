@@ -1,4 +1,4 @@
-"mgr_title" = "macpaper";
+"mgr_title" = "moonleaf";
 "mgr_wp_title" = "fondos";
 "mgr_browse_title" = "explorar";
 "add_wallpaper" = "añadir fondo";
@@ -15,7 +15,7 @@
 "video_format" = "video";
 
 "filter" = "filtrar";
-"show_types" = "Mostar";
+"show_types" = "Mostrar";
 "show_videos" = "Videos";
 "show_images" = "Imágenes";
 
@@ -29,18 +29,19 @@
 "sb_refresh" = "Actualizar";
 "sb_open_mgr" = "Abrir app";
 "sb_settings" = "Ajustes";
-"sb_about" = "Acerca de macpaper";
+"sb_about" = "Acerca de moonleaf";
 "sb_about_text" = "Versión %@ (%@)\n\nEl Gestor de Fondos para macOS";
 "sb_about_github" = "GitHub";
 "sb_about_kofi" = "Apoyar en Ko-fi";
 "sb_perst_tooltip" = "Iniciar fondo automáticamente al iniciar sesión";
-"sb_quit" = "Salir de macpaper";
+"sb_quit" = "Salir de moonleaf";
 
 "mgr_settings" = "ajustes";
 "settings" = "Ajustes";
 "cfg_auto_pause" = "Reproducción Inteligente";
 "cfg_auto_pause_desc" = "No reproducir el fondo cuando una aplicación está en pantalla completa";
 
+"browse_save" = "Guardar";
 "browse_search_placeholder" = "Buscar fondos...";
 "browse_filters" = "Filtros";
 "browse_category" = "Categoría";
@@ -93,10 +94,11 @@
 "settings_general" = "General";
 "settings_startup" = "Inicio";
 "settings_auto_start" = "Iniciar al iniciar sesión";
-"settings_auto_start_desc" = "Iniciar macpaper automáticamente al iniciar sesión";
+"settings_auto_start_desc" = "Iniciar moonleaf automáticamente al iniciar sesión";
 "settings_updates" = "Actualizaciones";
 "settings_check_updates" = "Buscar actualizaciones";
 "settings_check_updates_desc" = "Buscar actualizaciones al iniciar";
+"settings_update_log" = "Registro de cambios";
 "settings_export" = "Exportar";
 "settings_export_folder" = "Carpeta de Exportación";
 "settings_export_folder_desc" = "Elija dónde se guardan los fondos exportados";
@@ -104,12 +106,33 @@
 "settings_choose_folder" = "Elegir Carpeta";
 "settings_reset_folder" = "Restablecer";
 
+"settings_screensaver" = "Salvapantallas";
+"settings_use_screensaver" = "-";
+"settings_use_screensaver_desc" = "-";
+"settings_screensaver_hint" = "-";
+
 "settings_manager" = "Gestor";
 "settings_playback" = "Reproducción";
+"settings_appearance" = "Apariencia";
+"settings_glass_bg" = "Fondo Invisible";
+"settings_glass_bg_desc" = "Haz que el fondo del gestor sea invisible.";
 
 "settings_behavior" = "Comportamiento de reproducción";
 "settings_volume" = "Volumen de reproducción";
 "settings_default_volume" = "Volumen predeterminado";
+
+"settings_shuffle" = "Mezclar fondos";
+"settings_shuffle_desc" = "Rotar automáticamente por tu biblioteca de fondos";
+"settings_shuffle_interval" = "Cambiar cada";
+"shuffle_interval_15min" = "15 minutos";
+"shuffle_interval_1hr" = "1 hora";
+"shuffle_interval_3hr" = "3 horas";
+"shuffle_interval_daily" = "Diario";
+
+"settings_sort" = "Ordenación predeterminada";
+"sort_by_date" = "Fecha de agregado";
+"sort_by_name" = "Nombre";
+"sort_by_size" = "Tamaño de archivo";
 
 "settings_api_key" = "Clave API de Wallhaven";
 "settings_api_key_description" = "Experimental. Quítala si rompe algo.";
@@ -119,8 +142,8 @@
 "settings_no_api_key" = "No configurada";
 "settings_api_key_set" = "Clave de API configurada";
 "settings_add_api_key" = "Añadir clave de API";
-"settings_change_api_key" = "Change";
-"settings_invalid_api_key" = "Clave de API invalida";
+"settings_change_api_key" = "Cambiar";
+"settings_invalid_api_key" = "Clave de API inválida";
 
 "download_options_title" = "Opciones de descarga";
 "download_original" = "Descargar original";
@@ -133,3 +156,10 @@
 "settings_change_folder" = "Cambiar carpeta";
 "settings_select_folder" = "Seleccionar carpeta";
 "export_aspect_ratio" = "Relación de aspecto";
+
+"favorites_filter" = "Favoritos";
+"show_favorites" = "Solo favoritos";
+"show_all_wallpapers" = "Todos los fondos";
+"no_favorites" = "Sin favoritos aún";
+"no_favorites_desc" = "Toca la estrella de cualquier fondo para marcarlo como favorito";
+"browse_cancel" = "Cancelar";
