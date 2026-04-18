@@ -38,15 +38,6 @@ moonleaf is a feature-packed Wallpaper Manager for macOS, with support for gifs,
 - macOS **12** *(Monterey)* or later
 - Silicon/Intel Mac
 
-> [!IMPORTANT]
-> After downloading and trying to launch the app, you will receive a text saying that it is from an unidentified developer.
-> This is because I do not own an Apple Developer account. To fix this:
-> 1. Open **System Settings** > **Privacy & Security**
-> 2. Scroll down and find the warning about the app
-> 3. Click **Open Anyway**
->
-> You only need to do this once.
-
 <br>
 
 ## 🍺 Homebrew
@@ -60,6 +51,14 @@ xattr -dr com.apple.quarantine /Applications/moonleaf.app
 
 ## Manual
 ---
+> [!IMPORTANT]
+> After downloading and trying to launch the app, you will receive a text saying that it is from an unidentified developer.
+> This is because I do not own an Apple Developer account. To fix this:
+> 1. Open **System Settings** > **Privacy & Security**
+> 2. Scroll down and find the warning about the app
+> 3. Click **Open Anyway**
+>
+> You only need to do this once.
 
 <p align="center">
   <a href="https://github.com/naomisphere/moonleaf/releases/latest/download/moonleaf.dmg" target="_self"><img width="200" src="https://github.com/user-attachments/assets/e2b187d1-8010-45cf-a9d4-e7ce5e2e677c" /></a>
