@@ -9,8 +9,8 @@ RSC_DIR="$CONTENTS_DIR/Resources"
 SAVER_BUILD_DIR="${BUILD_DIR}/saver"
 SAVER_DIR="${SAVER_BUILD_DIR}/moonleafSaver.saver"
 
-MP_VER_STRING="v3.0.0"
-MP_VER_SHORT_STRING="v3.0"
+MP_VER_STRING="v3.1.0"
+MP_VER_SHORT_STRING="v3.1"
 
 rm -rf ./build
 

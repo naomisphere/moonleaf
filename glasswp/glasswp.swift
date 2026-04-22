@@ -269,7 +269,7 @@ final class RealVisualizerEngine {
             }
         )
 
-        var tapRef: MTAudioProcessingTap?
+        var tapRef: Unmanaged<MTAudioProcessingTap>?
         let status = MTAudioProcessingTapCreate(
             kCFAllocatorDefault,
             &callbacks,
@@ -277,7 +277,7 @@ final class RealVisualizerEngine {
             &tapRef
         )
 
-        guard status == noErr, let builtTap = tapRef else {
+        guard status == noErr, let builtTap = tapRef?.takeRetainedValue() else {
             retainedSelf.release()
             return
         }

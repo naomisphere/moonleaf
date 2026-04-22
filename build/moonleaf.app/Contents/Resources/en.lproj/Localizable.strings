@@ -1,0 +1,165 @@
+"mgr_title" = "moonleaf";
+"mgr_wp_title" = "wallpapers";
+"mgr_browse_title" = "browse";
+"add_wallpaper" = "add wallpaper";
+"persist" = "persist";
+"unset_current" = "unset current";
+"refresh" = "refresh";
+"loading_wallpapers" = "loading wallpapers...";
+"scanning_files" = "scanning for files";
+"no_wallpapers_found" = "no wallpapers found";
+"drop_files_or_add" = "drop files here or click 'add wallpaper'";
+"supported_formats" = "supported formats: .mp4, .mov, .gif, .png, .jpg, .jpeg";
+"set_wallpaper" = "set wallpaper";
+"gif_format" = "gif";
+"video_format" = "video";
+
+"filter" = "filter";
+"show_types" = "Show";
+"show_videos" = "Videos";
+"show_images" = "Images";
+
+"sb_no_wallpapers" = "No wallpapers found";
+"sb_wallpapers" = "Wallpapers";
+"sb_large_count" = "%d more...";
+"sb_perst_enabled" = "Persistence Enabled";
+"sb_enable_perst" = "Enable Persistence";
+"sb_unset_wp" = "Unset Live Wallpaper";
+"sb_show_all" = "Show All...";
+"sb_refresh" = "Refresh";
+"sb_open_mgr" = "Open Manager";
+"sb_settings" = "Settings";
+"sb_about" = "About moonleaf";
+"sb_about_text" = "Version %@ (%@)\n\nThe Wallpaper Manager for macOS";
+"sb_about_github" = "GitHub";
+"sb_about_kofi" = "Support on Ko-fi";
+"sb_perst_tooltip" = "Automatically start wallpaper on login";
+"sb_quit" = "Quit moonleaf";
+
+"mgr_settings" = "settings";
+"settings" = "Settings";
+"cfg_auto_pause" = "Smart Playback";
+"cfg_auto_pause_desc" = "Stop playing wallpaper when apps are fullscreen";
+
+"browse_save" = "Save";
+"browse_cancel" = "Cancel";
+"browse_search_placeholder" = "Search wallpapers...";
+"browse_filters" = "Filters";
+"browse_category" = "Category";
+"browse_purity" = "Purity";
+"browse_sort" = "Sort by";
+"browse_desc" = "Descending";
+"browse_asc" = "Ascending";
+"browse_apply" = "Apply Filters";
+"browse_loading" = "Loading wallpapers...";
+"browse_no_results" = "No wallpapers found";
+"browse_try_search" = "Try adjusting your search or filters";
+"browse_provider" = "Sources";
+"browse_wallhaven" = "Wallhaven";
+"browse_local" = "Local Library";
+"browse_resolution" = "Resolution";
+"filter_resolution_all" = "All";
+"browse_download" = "Download Wallpaper";
+"export_wallpaper" = "Export Wallpaper";
+"export_error" = "Export Failed";
+"export_original" = "Original Size";
+"export_iphone_header" = "iPhone";
+"export_iphone_15_pro_max" = "iPhone 15 Pro Max (1290×2796)";
+"export_iphone_15_pro" = "iPhone 15 Pro (1179×2556)";
+"export_iphone_14_pro" = "iPhone 14 Pro (1179×2556)";
+"export_iphone_13_pro" = "iPhone 13 Pro (1170×2532)";
+"export_iphone_se" = "iPhone SE (750×1334)";
+"export_ipad_header" = "iPad";
+"export_ipad_pro_12" = "iPad Pro 12.9\" (2732×2048)";
+"export_ipad_pro_11" = "iPad Pro 11\" (2388×1668)";
+"export_desktop_header" = "Desktop";
+"export_4k" = "4K UHD (3840×2160)";
+"export_1440p" = "1440p (2560×1440)";
+"export_1080p" = "1080p (1920×1080)";
+"export_ultrawide" = "Ultrawide 21:9 (3440×1440)";
+
+"sort_date" = "Date Added";
+"sort_relevance" = "Relevance";
+"sort_random" = "Random";
+"sort_views" = "Views";
+"sort_favorites" = "Favorites";
+"sort_top" = "Toplist";
+
+"purity_all" = "All";
+
+"category_general" = "General";
+"category_anime" = "Anime";
+"category_people" = "People";
+"category_all" = "All";
+
+"settings_general" = "General";
+"settings_startup" = "Startup";
+"settings_auto_start" = "Start at Login";
+"settings_auto_start_desc" = "Automatically start moonleaf when you log in";
+"settings_updates" = "Updates";
+"settings_check_updates" = "Check for Updates";
+"settings_check_updates_desc" = "Check for updates on startup";
+"settings_update_log" = "Update Log";
+"settings_export" = "Export";
+"settings_export_folder" = "Export Folder";
+"settings_export_folder_desc" = "Choose where exported wallpapers are saved";
+"settings_export_folder_default" = "Pictures folder";
+"settings_choose_folder" = "Choose Folder";
+"settings_reset_folder" = "Reset";
+
+"settings_screensaver" = "Screensaver";
+"settings_use_screensaver" = "-";
+"settings_use_screensaver_desc" = "-";
+"settings_screensaver_hint" = "-";
+
+"settings_manager" = "Manager";
+"settings_playback" = "Playback";
+"settings_appearance" = "Appearance";
+"settings_glass_bg" = "Invisible Background";
+"settings_glass_bg_desc" = "Hide the background of the manager app (requires restart)";
+
+"settings_behavior" = "Playback Behavior";
+"settings_volume" = "Playback Volume";
+"settings_default_volume" = "Default Volume";
+
+"settings_shuffle" = "Shuffle Wallpapers";
+"settings_shuffle_desc" = "Automatically rotate through your wallpaper library";
+"settings_shuffle_interval" = "Change every";
+"shuffle_interval_15min" = "15 minutes";
+"shuffle_interval_1hr" = "1 hour";
+"shuffle_interval_3hr" = "3 hours";
+"shuffle_interval_daily" = "Daily";
+
+"settings_sort" = "Default Sort";
+"sort_by_date" = "Date Added";
+"sort_by_name" = "Name";
+"sort_by_size" = "File Size";
+
+"settings_api_key" = "Wallhaven API Key";
+"settings_api_key_description" = "Experimental. Clear if it breaks.";
+"settings_enter_api_key" = "Enter API Key";
+"settings_save" = "Save";
+"settings_cancel" = "Cancel";
+"settings_no_api_key" = "No API key set";
+"settings_api_key_set" = "API key is set";
+"settings_add_api_key" = "Add API Key";
+"settings_change_api_key" = "Change";
+"settings_invalid_api_key" = "Invalid API key";
+
+"download_options_title" = "Download Options";
+"download_original" = "Download Original";
+"download_custom_ratio" = "Custom Aspect Ratio";
+"download_custom_title" = "Custom Download";
+"download_custom_desc" = "Choose a device to crop the image";
+"crop_editor_title" = "Crop Image";
+"crop_zoom" = "Zoom";
+"crop_apply" = "Apply";
+"settings_change_folder" = "Change Folder";
+"settings_select_folder" = "Select Folder";
+"export_aspect_ratio" = "Aspect Ratio";
+
+"favorites_filter" = "Favorites";
+"show_favorites" = "Favorites Only";
+"show_all_wallpapers" = "All Wallpapers";
+"no_favorites" = "No favorites yet";
+"no_favorites_desc" = "Tap the star on any wallpaper to favorite it";

@@ -131,9 +131,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             if useGlass {
                 window.isOpaque = false
                 window.backgroundColor = .clear
-                window.contentView = NSHostingView(rootView: contentView.font(Font(font_loader.regular(size: 13))).ignoresSafeArea())
-                window.contentView?.wantsLayer = true
-                window.contentView?.layer?.backgroundColor = NSColor.clear.cgColor
+
+                #if swift(>=6.0)
+                if #available(macOS 26.0, *) {
+                    let glassManager = GlassManagerView()
+                    window.contentView = NSHostingView(rootView: glassManager.font(Font(font_loader.regular(size: 13))))
+                } else {
+                    let blurredContent = BlurredWindowContent()
+                    window.contentView = NSHostingView(rootView: blurredContent.font(Font(font_loader.regular(size: 13))))
+                }
+                #else
+                let blurredContent = BlurredWindowContent()
+                window.contentView = NSHostingView(rootView: blurredContent.font(Font(font_loader.regular(size: 13))))
+                #endif
             } else {
                 window.isOpaque = true
                 window.backgroundColor = NSColor(srgbRed: 0.08, green: 0.10, blue: 0.18, alpha: 0.95)
@@ -406,6 +416,61 @@ extension AppDelegate: NSWindowDelegate {
         return NSSize(width: max(frameSize.width, 900), height: max(frameSize.height, 600))
     }
 }
+
+// MARK: - Glass/Blur Background Views
+
+// Blur effect view for older macOS versions (pre-macOS 26)
+struct BlurredBackgroundView: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let effectView = NSVisualEffectView()
+        effectView.material = .hudWindow
+        effectView.blendingMode = .behindWindow
+        effectView.state = .active
+        return effectView
+    }
+
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
+}
+
+// Fallback view with blur for older macOS versions
+struct BlurredWindowContent: View {
+    var body: some View {
+        ZStack {
+            BlurredBackgroundView()
+                .ignoresSafeArea()
+
+            Color(NSColor(srgbRed: 0.08, green: 0.10, blue: 0.18, alpha: 0.85))
+                .ignoresSafeArea()
+
+            ContentView()
+        }
+    }
+}
+
+#if swift(>=6.0)
+// Glass effect view for macOS 26+
+@available(macOS 26.0, *)
+struct GlassManagerView: View {
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color(NSColor(calibratedRed: 0.162, green: 0.389, blue: 1, alpha: 0.35)),
+                            Color(NSColor(calibratedRed: 0.162, green: 0.389, blue: 1, alpha: 0.2))
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .glassEffect(in: .rect(cornerRadius: 28))
+                .ignoresSafeArea()
+            ContentView()
+        }
+    }
+}
+#endif
 
 struct MiniVolumeSlider: View {
     @State var volume: Double
