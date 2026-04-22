@@ -1,0 +1,165 @@
+"mgr_title" = "moonleaf";
+"mgr_wp_title" = "Papéis de Parede";
+"mgr_browse_title" = "Explorar";
+"add_wallpaper" = "Adicionar Papel de Parede";
+"persist" = "Persistir";
+"unset_current" = "Remover Atual";
+"refresh" = "Atualizar";
+"loading_wallpapers" = "carregando papéis de parede...";
+"scanning_files" = "procurando arquivos de vídeo";
+"no_wallpapers_found" = "nenhum papel de parede encontrado";
+"drop_files_or_add" = "solte os arquivos aqui ou clique em 'Adicionar Papel de Parede'";
+"supported_formats" = "formatos suportados: .mp4, .mov, .gif, .png, .jpg, .jpeg";
+"set_wallpaper" = "Definir como Papel de Parede";
+"gif_format" = "gif";
+"video_format" = "vídeo";
+
+"filter" = "Filtrar";
+"show_types" = "Exibir";
+"show_videos" = "Vídeos";
+"show_images" = "Imagens";
+
+"sb_no_wallpapers" = "Nenhum papel de parede encontrado";
+"sb_wallpapers" = "Papéis de Parede";
+"sb_large_count" = "%d a mais...";
+"sb_perst_enabled" = "Persistência Ativada";
+"sb_enable_perst" = "Ativar Persistência";
+"sb_unset_wp" = "Desativar Papel de Parede Animado";
+"sb_show_all" = "Mostrar Tudo...";
+"sb_refresh" = "Atualizar";
+"sb_open_mgr" = "Abrir Gerenciador";
+"sb_settings" = "Configurações";
+"sb_about" = "Sobre moonleaf";
+"sb_about_text" = "Versão %@ (%@)\n\nO Gerenciador de Papéis de Parede em Vivo para macOS";
+"sb_about_github" = "GitHub";
+"sb_about_kofi" = "Apoiar no Ko-fi";
+"sb_perst_tooltip" = "Iniciar papel de parede automaticamente ao fazer login";
+"sb_quit" = "Encerrar moonleaf";
+
+"mgr_settings" = "configurações";
+"settings" = "Configurações";
+"cfg_auto_pause" = "Reprodução Inteligente";
+"cfg_auto_pause_desc" = "Pausa a reprodução quando um aplicativo está em tela cheia";
+
+"browse_save" = "Salvar";
+"browse_cancel" = "Cancelar";
+"browse_search_placeholder" = "Buscar papéis de parede...";
+"browse_filters" = "Filtros";
+"browse_category" = "Categoria";
+"browse_purity" = "Pureza";
+"browse_sort" = "Ordenar por";
+"browse_desc" = "Decrescente";
+"browse_asc" = "Crescente";
+"browse_apply" = "Aplicar Filtros";
+"browse_loading" = "Carregando papéis de parede...";
+"browse_no_results" = "Nenhum papel de parede encontrado";
+"browse_try_search" = "Tente ajustar sua busca ou filtros";
+"browse_provider" = "Fontes";
+"browse_wallhaven" = "Wallhaven";
+"browse_local" = "Biblioteca Local";
+"browse_resolution" = "Resolução";
+"filter_resolution_all" = "Todas";
+"browse_download" = "Baixar Papel de Parede";
+"export_wallpaper" = "Exportar Papel de Parede";
+"export_error" = "Erro ao exportar";
+"export_original" = "Tamanho Original";
+"export_iphone_header" = "iPhone";
+"export_iphone_15_pro_max" = "iPhone 15 Pro Max (1290×2796)";
+"export_iphone_15_pro" = "iPhone 15 Pro (1179×2556)";
+"export_iphone_14_pro" = "iPhone 14 Pro (1179×2556)";
+"export_iphone_13_pro" = "iPhone 13 Pro (1170×2532)";
+"export_iphone_se" = "iPhone SE (750×1334)";
+"export_ipad_header" = "iPad";
+"export_ipad_pro_12" = "iPad Pro 12.9\" (2732×2048)";
+"export_ipad_pro_11" = "iPad Pro 11\" (2388×1668)";
+"export_desktop_header" = "Desktop";
+"export_4k" = "4K UHD (3840×2160)";
+"export_1440p" = "1440p (2560×1440)";
+"export_1080p" = "1080p (1920×1080)";
+"export_ultrawide" = "Ultrawide 21:9 (3440×1440)";
+
+"sort_date" = "Data de Adição";
+"sort_relevance" = "Relevância";
+"sort_random" = "Aleatório";
+"sort_views" = "Visualizações";
+"sort_favorites" = "Favoritos";
+"sort_top" = "Mais Populares";
+
+"purity_all" = "Todos";
+
+"category_general" = "Geral";
+"category_anime" = "Anime";
+"category_people" = "Pessoas";
+"category_all" = "Todas";
+
+"settings_general" = "Geral";
+"settings_startup" = "Inicialização";
+"settings_auto_start" = "Iniciar ao Fazer Login";
+"settings_auto_start_desc" = "Iniciar moonleaf automaticamente ao fazer login";
+"settings_updates" = "Atualizações";
+"settings_check_updates" = "Verificar atualizações";
+"settings_check_updates_desc" = "Verificar atualizações ao iniciar";
+"settings_update_log" = "Registro de alterações";
+"settings_export" = "Exportar";
+"settings_export_folder" = "Pasta de Exportação";
+"settings_export_folder_desc" = "Escolha onde os papéis de parede exportados são salvos";
+"settings_export_folder_default" = "Pasta de Imagens";
+"settings_choose_folder" = "Escolher Pasta";
+"settings_reset_folder" = "Redefinir";
+
+"settings_screensaver" = "Protetor de Tela";
+"settings_use_screensaver" = "-";
+"settings_use_screensaver_desc" = "-";
+"settings_screensaver_hint" = "-";
+
+"settings_manager" = "Gerenciador";
+"settings_playback" = "Reprodução";
+"settings_appearance" = "Aparência";
+"settings_glass_bg" = "Fundo de Vidro";
+"settings_glass_bg_desc" = "Mostrar efeito de vidro translúcido atrás da biblioteca";
+
+"settings_behavior" = "Comportamento de reprodução";
+"settings_volume" = "Volume de reprodução";
+"settings_default_volume" = "Volume padrão";
+
+"settings_shuffle" = "Embaralhar papéis de parede";
+"settings_shuffle_desc" = "Alternar automaticamente pela biblioteca de papéis de parede";
+"settings_shuffle_interval" = "Alterar a cada";
+"shuffle_interval_15min" = "15 minutos";
+"shuffle_interval_1hr" = "1 hora";
+"shuffle_interval_3hr" = "3 horas";
+"shuffle_interval_daily" = "Diariamente";
+
+"settings_sort" = "Ordenação padrão";
+"sort_by_date" = "Data de Adição";
+"sort_by_name" = "Nome";
+"sort_by_size" = "Tamanho do arquivo";
+
+"settings_api_key" = "Chave Api de Wallhaven";
+"settings_api_key_description" = "Experimental. Limpe se causar problemas.";
+"settings_enter_api_key" = "Insira a Chave de API";
+"settings_save" = "Salvar";
+"settings_cancel" = "Cancelar";
+"settings_no_api_key" = "Nenhuma chave de API definida";
+"settings_api_key_set" = "Chave de API definida";
+"settings_add_api_key" = "Adicionar Chave de API";
+"settings_change_api_key" = "Alterar";
+"settings_invalid_api_key" = "Chave de API inválida";
+
+"download_options_title" = "Opções de download";
+"download_original" = "Baixar original";
+"download_custom_ratio" = "Proporção personalizada";
+"download_custom_title" = "Download personalizado";
+"download_custom_desc" = "Escolha um dispositivo para cortar a imagem";
+"crop_editor_title" = "Cortar imagem";
+"crop_zoom" = "Zoom";
+"crop_apply" = "Aplicar";
+"settings_change_folder" = "Alterar pasta";
+"settings_select_folder" = "Selecionar pasta";
+"export_aspect_ratio" = "Proporção";
+
+"favorites_filter" = "Favoritos";
+"show_favorites" = "Apenas favoritos";
+"show_all_wallpapers" = "Todos os papéis de parede";
+"no_favorites" = "Sem favoritos ainda";
+"no_favorites_desc" = "Toque na estrela de qualquer papel de parede para favoritá-lo";

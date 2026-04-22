@@ -1,0 +1,165 @@
+"mgr_title" = "moonleaf";
+"mgr_wp_title" = "Hintergrundbilder";
+"mgr_browse_title" = "Durchsuchen";
+"add_wallpaper" = "Hintergrundbild hinzufügen";
+"persist" = "Persistieren";
+"unset_current" = "Aktuelles entfernen";
+"refresh" = "Aktualisieren";
+"loading_wallpapers" = "Hintergrundbilder werden geladen...";
+"scanning_files" = "Dateien werden gescannt";
+"no_wallpapers_found" = "Keine Hintergrundbilder gefunden";
+"drop_files_or_add" = "Dateien hier ablegen oder 'Hintergrundbild hinzufügen' klicken";
+"supported_formats" = "Unterstützte Formate: .mp4, .mov, .gif, .png, .jpg, .jpeg";
+"set_wallpaper" = "Als Hintergrundbild setzen";
+"gif_format" = "gif";
+"video_format" = "Video";
+
+"filter" = "Filter";
+"show_types" = "Anzeigen";
+"show_videos" = "Videos";
+"show_images" = "Bilder";
+
+"sb_no_wallpapers" = "Keine Hintergrundbilder gefunden";
+"sb_wallpapers" = "Hintergrundbilder";
+"sb_large_count" = "%d weitere...";
+"sb_perst_enabled" = "Persistenz aktiviert";
+"sb_enable_perst" = "Persistenz aktivieren";
+"sb_unset_wp" = "Live-Hintergrundbild entfernen";
+"sb_show_all" = "Alle anzeigen...";
+"sb_refresh" = "Aktualisieren";
+"sb_open_mgr" = "Manager öffnen";
+"sb_settings" = "Einstellungen";
+"sb_about" = "Über moonleaf";
+"sb_about_text" = "Version %@ (%@)\n\nDer Live-Hintergrundbild-Manager für macOS";
+"sb_about_github" = "GitHub";
+"sb_about_kofi" = "Auf Ko-fi unterstützen";
+"sb_perst_tooltip" = "Hintergrundbild automatisch beim Anmelden starten";
+"sb_quit" = "moonleaf beenden";
+
+"mgr_settings" = "Einstellungen";
+"settings" = "Einstellungen";
+"cfg_auto_pause" = "Intelligente Wiedergabe";
+"cfg_auto_pause_desc" = "Hintergrundbild stoppen, wenn Apps im Vollbildmodus sind";
+
+"browse_save" = "Speichern";
+"browse_cancel" = "Abbrechen";
+"browse_search_placeholder" = "Hintergrundbilder suchen...";
+"browse_filters" = "Filter";
+"browse_category" = "Kategorie";
+"browse_purity" = "Reinheit";
+"browse_sort" = "Sortieren nach";
+"browse_desc" = "Absteigend";
+"browse_asc" = "Aufsteigend";
+"browse_apply" = "Filter anwenden";
+"browse_loading" = "Hintergrundbilder werden geladen...";
+"browse_no_results" = "Keine Hintergrundbilder gefunden";
+"browse_try_search" = "Versuchen Sie, Ihre Suche oder Filter anzupassen";
+"browse_provider" = "Quellen";
+"browse_wallhaven" = "Wallhaven";
+"browse_local" = "Lokale Bibliothek";
+"browse_resolution" = "Auflösung";
+"filter_resolution_all" = "Alle";
+"browse_download" = "Hintergrundbild herunterladen";
+"export_wallpaper" = "Hintergrundbild exportieren";
+"export_error" = "Export fehlgeschlagen";
+"export_original" = "Originalgröße";
+"export_iphone_header" = "iPhone";
+"export_iphone_15_pro_max" = "iPhone 15 Pro Max (1290×2796)";
+"export_iphone_15_pro" = "iPhone 15 Pro (1179×2556)";
+"export_iphone_14_pro" = "iPhone 14 Pro (1179×2556)";
+"export_iphone_13_pro" = "iPhone 13 Pro (1170×2532)";
+"export_iphone_se" = "iPhone SE (750×1334)";
+"export_ipad_header" = "iPad";
+"export_ipad_pro_12" = "iPad Pro 12.9\" (2732×2048)";
+"export_ipad_pro_11" = "iPad Pro 11\" (2388×1668)";
+"export_desktop_header" = "Desktop";
+"export_4k" = "4K UHD (3840×2160)";
+"export_1440p" = "1440p (2560×1440)";
+"export_1080p" = "1080p (1920×1080)";
+"export_ultrawide" = "Ultrawide 21:9 (3440×1440)";
+
+"sort_date" = "Hinzugefügt am";
+"sort_relevance" = "Relevanz";
+"sort_random" = "Zufällig";
+"sort_views" = "Aufrufe";
+"sort_favorites" = "Favoriten";
+"sort_top" = "Topliste";
+
+"purity_all" = "Alle";
+
+"category_general" = "Allgemein";
+"category_anime" = "Anime";
+"category_people" = "Menschen";
+"category_all" = "Alle";
+
+"settings_general" = "Allgemein";
+"settings_startup" = "Start";
+"settings_auto_start" = "Beim Anmelden starten";
+"settings_auto_start_desc" = "moonleaf automatisch beim Anmelden starten";
+"settings_updates" = "Updates";
+"settings_check_updates" = "Nach Updates suchen";
+"settings_check_updates_desc" = "Beim Start nach Updates suchen";
+"settings_update_log" = "Update-Protokoll";
+"settings_export" = "Export";
+"settings_export_folder" = "Export-Ordner";
+"settings_export_folder_desc" = "Wählen Sie, wo exportierte Hintergrundbilder gespeichert werden";
+"settings_export_folder_default" = "Bilder-Ordner";
+"settings_choose_folder" = "Ordner wählen";
+"settings_reset_folder" = "Zurücksetzen";
+
+"settings_screensaver" = "Bildschirmschoner";
+"settings_use_screensaver" = "-";
+"settings_use_screensaver_desc" = "-";
+"settings_screensaver_hint" = "-";
+
+"settings_manager" = "Manager";
+"settings_playback" = "Wiedergabe";
+"settings_appearance" = "Darstellung";
+"settings_glass_bg" = "Glaseffekt";
+"settings_glass_bg_desc" = "Durchscheinenden Glaseffekt hinter der Wallpaper-Bibliothek anzeigen";
+
+"settings_behavior" = "Wiedergabeverhalten";
+"settings_volume" = "Wiedergabelautstärke";
+"settings_default_volume" = "Standardlautstärke";
+
+"settings_shuffle" = "Hintergrundbilder mischen";
+"settings_shuffle_desc" = "Automatisch durch die Bibliothek wechseln";
+"settings_shuffle_interval" = "Wechseln alle";
+"shuffle_interval_15min" = "15 Minuten";
+"shuffle_interval_1hr" = "1 Stunde";
+"shuffle_interval_3hr" = "3 Stunden";
+"shuffle_interval_daily" = "Täglich";
+
+"settings_sort" = "Standardsortierung";
+"sort_by_date" = "Hinzugefügt am";
+"sort_by_name" = "Name";
+"sort_by_size" = "Dateigröße";
+
+"settings_api_key" = "Wallhaven API-Schlüssel";
+"settings_api_key_description" = "Experimentell. Leeren, falls es Probleme verursacht.";
+"settings_enter_api_key" = "API-Schlüssel eingeben";
+"settings_save" = "Speichern";
+"settings_cancel" = "Abbrechen";
+"settings_no_api_key" = "Kein API-Schlüssel gesetzt";
+"settings_api_key_set" = "API-Schlüssel ist gesetzt";
+"settings_add_api_key" = "API-Schlüssel hinzufügen";
+"settings_change_api_key" = "Ändern";
+"settings_invalid_api_key" = "Ungültiger API-Schlüssel";
+
+"download_options_title" = "Download-Optionen";
+"download_original" = "Original herunterladen";
+"download_custom_ratio" = "Benutzerdefiniertes Seitenverhältnis";
+"download_custom_title" = "Benutzerdefinierter Download";
+"download_custom_desc" = "Wählen Sie ein Gerät zum Zuschneiden des Bildes";
+"crop_editor_title" = "Bild zuschneiden";
+"crop_zoom" = "Zoom";
+"crop_apply" = "Anwenden";
+"settings_change_folder" = "Ordner ändern";
+"settings_select_folder" = "Ordner auswählen";
+"export_aspect_ratio" = "Seitenverhältnis";
+
+"favorites_filter" = "Favoriten";
+"show_favorites" = "Nur Favoriten";
+"show_all_wallpapers" = "Alle Hintergrundbilder";
+"no_favorites" = "Noch keine Favoriten";
+"no_favorites_desc" = "Tippen Sie auf den Stern eines Hintergrundbilds, um es zu favorisieren";
