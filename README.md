@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="http://github.com/naomisphere/moonleaf"><img src="https://github.com/user-attachments/assets/1f08015b-14bd-429b-b7dd-58d2bff99bc0" alt="moonleaf" width="150"></a>
+  <a href="http://github.com/naomisphere/moonleaf"><img src="https://github.com/user-attachments/assets/68ab0687-88ca-4c1f-9864-ea49480dcd4e" alt="moonleaf" width="150"></a>
   <br>
   moonleaf
 
