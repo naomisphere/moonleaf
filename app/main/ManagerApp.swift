@@ -98,7 +98,7 @@ struct ManagerView: View {
                     Image(systemName: "plus")
                         .font(.system(size: 13, weight: .bold))
                     Text("add wallpaper")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(Font(font_loader.bold(size: 13)))
                     Spacer()
                     Image(systemName: "chevron.down")
                         .font(.system(size: 10, weight: .medium))

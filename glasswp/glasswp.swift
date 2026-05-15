@@ -10,6 +10,7 @@ import AppKit
 import Accelerate
 import Foundation
 import MediaToolbox
+import CoreImage
 
 let g_lock = NSLock()
 var g_display_bins = [Float](repeating: 0, count: 96)
@@ -19,10 +20,11 @@ class GlasswpApp: NSObject, NSApplicationDelegate {
     var window: NSWindow?
     var mp: AVPlayer?
     var playerItem: AVPlayerItem?
-    var playerLayer: AVPlayerLayer?
+    var currentLayer: CALayer?
     var vizView: VisualizerView?
     var vizEngine: RealVisualizerEngine?
     var loopObserver: NSObjectProtocol?
+    var playerStatusObserver: NSKeyValueObservation?
     var vizMode: String = "disabled"
     var vizColorMode: String = "rainbow"
     var vizCustomColor: String = "#FF00FF"
@@ -30,12 +32,14 @@ class GlasswpApp: NSObject, NSApplicationDelegate {
     var vizBarCount: Int = 64
     var vizMaxHeight: Double = 0.5
     var vizMinHeight: Double = 4.0
+    var scalingMode: String = "fill"
+    var videoFilter: String = "none"
     var entryFilePath: String = ""
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         loadVisualizerSettings()
         setupWindow()
-        playWallpaper(filePath: entryFilePath)
+        playWallpaper(filePath: entryFilePath, fade: false)
         registerNotifications()
     }
 
@@ -49,7 +53,7 @@ class GlasswpApp: NSObject, NSApplicationDelegate {
             defer: false,
             screen: screen
         )
-        wnd.isOpaque = false
+        wnd.isOpaque = true
         wnd.backgroundColor = .black
         wnd.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.desktopWindow)) + 1)
         wnd.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle]
@@ -58,39 +62,273 @@ class GlasswpApp: NSObject, NSApplicationDelegate {
         window = wnd
     }
 
-    private func playWallpaper(filePath: String) {
-        guard let wnd = window else { return }
+    private func getVideoGravity() -> AVLayerVideoGravity {
+        switch scalingMode {
+        case "fit": return .resizeAspect
+        case "stretch": return .resize
+        default: return .resizeAspectFill
+        }
+    }
+    
+    private func getContentsGravity() -> CALayerContentsGravity {
+        switch scalingMode {
+        case "fit": return .resizeAspect
+        case "stretch": return .resize
+        case "center": return .center
+        case "tile": return .resize
+        default: return .resizeAspectFill
+        }
+    }
 
-        let url = URL(fileURLWithPath: filePath)
-        let item = AVPlayerItem(url: url)
-        let player = AVPlayer(playerItem: item)
-        playerItem = item
-        mp = player
+    private func applyFilter(to item: AVPlayerItem) {
+        if videoFilter == "none" { return }
+        
+        let filterName: String
+        let localFilter = videoFilter
+        switch videoFilter {
+        case "grayscale": filterName = "CIColorControls"
+        case "invert": filterName = "CIColorInvert"
+        case "sepia": filterName = "CISepiaTone"
+        default: return
+        }
+        
+        let composition = AVVideoComposition(asset: item.asset) { request in
+            var image = request.sourceImage
+            if let filter = CIFilter(name: filterName) {
+                filter.setValue(image, forKey: kCIInputImageKey)
+                if localFilter == "grayscale" {
+                    filter.setValue(0.0, forKey: kCIInputSaturationKey)
+                } else if localFilter == "sepia" {
+                    filter.setValue(1.0, forKey: kCIInputIntensityKey)
+                }
+                if let output = filter.outputImage {
+                    image = output
+                }
+            }
+            request.finish(with: image, context: nil)
+        }
+        item.videoComposition = composition
+    }
 
-        let volume = readVolume()
-        player.volume = Float(volume)
+    private func playWallpaper(filePath: String, fade: Bool = true) {
+        guard let wnd = window, let contentView = wnd.contentView else { return }
 
-        let layer = AVPlayerLayer(player: player)
-        layer.frame = wnd.contentView?.bounds ?? wnd.frame
-        layer.videoGravity = .resizeAspectFill
-        wnd.contentView?.wantsLayer = true
-        wnd.contentView?.layer?.addSublayer(layer)
-        playerLayer = layer
-
-        player.play()
-
-        loopObserver = NotificationCenter.default.addObserver(
-            forName: .AVPlayerItemDidPlayToEndTime,
-            object: item,
-            queue: .main
-        ) { _ in
-            player.seek(to: .zero)
+        self.entryFilePath = filePath
+        contentView.wantsLayer = true
+        let oldLayer = currentLayer
+        let oldPlayer = mp
+        let oldObserver = loopObserver
+        
+        if let observer = oldObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        
+        playerStatusObserver?.invalidate()
+        playerStatusObserver = nil
+        
+        let ext = (filePath as NSString).pathExtension.lowercased()
+        let isStaticImage = ["jpg", "jpeg", "png"].contains(ext)
+        let isGIF = ext == "gif"
+        
+        var newLayer: CALayer!
+        
+        if isStaticImage {
+            let layer = CALayer()
+            layer.frame = contentView.bounds
+            if let img = NSImage(contentsOfFile: filePath) {
+                if scalingMode == "tile" {
+                    layer.backgroundColor = NSColor(patternImage: img).cgColor
+                } else {
+                    var finalImg = img
+                    if videoFilter != "none", let tiffData = img.tiffRepresentation {
+                        let ciImage = CIImage(data: tiffData)
+                        let filterName: String
+                        switch videoFilter {
+                        case "grayscale": filterName = "CIColorControls"
+                        case "invert": filterName = "CIColorInvert"
+                        case "sepia": filterName = "CISepiaTone"
+                        default: filterName = ""
+                        }
+                        if filterName != "", let filter = CIFilter(name: filterName), let input = ciImage {
+                            filter.setValue(input, forKey: kCIInputImageKey)
+                            if videoFilter == "grayscale" {
+                                filter.setValue(0.0, forKey: kCIInputSaturationKey)
+                            } else if videoFilter == "sepia" {
+                                filter.setValue(1.0, forKey: kCIInputIntensityKey)
+                            }
+                            if let output = filter.outputImage {
+                                let rep = NSCIImageRep(ciImage: output)
+                                let newNSImage = NSImage(size: rep.size)
+                                newNSImage.addRepresentation(rep)
+                                finalImg = newNSImage
+                            }
+                        }
+                    }
+                    layer.contents = finalImg
+                    layer.contentsGravity = getContentsGravity()
+                }
+            }
+            newLayer = layer
+            mp = nil
+            playerItem = nil
+        } else if isGIF {
+            let layer = makeGIFLayer(filePath: filePath, bounds: contentView.bounds)
+            newLayer = layer
+            mp = nil
+            playerItem = nil
+        } else {
+            let url = URL(fileURLWithPath: filePath)
+            let item = AVPlayerItem(url: url)
+            applyFilter(to: item)
+            let player = AVPlayer(playerItem: item)
+            
+            let volume = readVolume()
+            player.volume = Float(volume)
+            
+            let layer = AVPlayerLayer(player: player)
+            layer.frame = contentView.bounds
+            layer.videoGravity = getVideoGravity()
+            newLayer = layer
+            
             player.play()
+            
+            loopObserver = NotificationCenter.default.addObserver(
+                forName: .AVPlayerItemDidPlayToEndTime,
+                object: item,
+                queue: .main
+            ) { _ in
+                player.seek(to: .zero)
+                player.play()
+            }
+            
+            mp = player
+            playerItem = item
+            
+            if vizMode != "disabled" {
+                if let vv = vizView {
+                    vv.removeFromSuperview()
+                    vizView = nil
+                    vizEngine = nil
+                }
+                setupVisualizer(on: wnd, item: item)
+            }
+        }
+        
+        newLayer.opacity = fade ? 0.0 : 1.0
+        contentView.layer?.addSublayer(newLayer)
+        
+        if let vv = vizView {
+            vv.removeFromSuperview()
+            contentView.addSubview(vv)
+        }
+        
+        currentLayer = newLayer
+        
+        if fade {
+            if isStaticImage || isGIF {
+                crossfade(newLayer: newLayer, oldLayer: oldLayer, oldPlayer: oldPlayer)
+            } else if let item = playerItem {
+                playerStatusObserver = item.observe(\.status, options: [.initial, .new]) { [weak self, weak newLayer, weak oldLayer, weak oldPlayer] observedItem, _ in
+                    guard observedItem.status == .readyToPlay else { return }
+                    DispatchQueue.main.async {
+                        guard let nl = newLayer else { return }
+                        self?.crossfade(newLayer: nl, oldLayer: oldLayer, oldPlayer: oldPlayer)
+                        self?.playerStatusObserver?.invalidate()
+                        self?.playerStatusObserver = nil
+                    }
+                }
+            }
+        } else {
+            oldLayer?.opacity = 1.0
+            oldLayer?.removeFromSuperlayer()
+            oldPlayer?.pause()
+        }
+    }
+
+    private func crossfade(newLayer: CALayer, oldLayer: CALayer?, oldPlayer: AVPlayer?) {
+        let duration: CFTimeInterval = 1.2
+        let timing = CAMediaTimingFunction(name: .easeInEaseOut)
+
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+
+        let fadeIn = CABasicAnimation(keyPath: "opacity")
+        fadeIn.fromValue = Float(0.0)
+        fadeIn.toValue = Float(1.0)
+        fadeIn.duration = duration
+        fadeIn.timingFunction = timing
+        fadeIn.fillMode = .forwards
+        fadeIn.isRemovedOnCompletion = false
+        newLayer.add(fadeIn, forKey: "fadeIn")
+        newLayer.opacity = 1.0
+
+        if let old = oldLayer {
+            let fadeOut = CABasicAnimation(keyPath: "opacity")
+            fadeOut.fromValue = Float(1.0)
+            fadeOut.toValue = Float(0.0)
+            fadeOut.duration = duration
+            fadeOut.timingFunction = timing
+            fadeOut.fillMode = .forwards
+            fadeOut.isRemovedOnCompletion = false
+            old.add(fadeOut, forKey: "fadeOut")
+            old.opacity = 0.0
         }
 
-        if vizMode != "disabled" {
-            setupVisualizer(on: wnd, item: item)
+        CATransaction.commit()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+            oldLayer?.removeFromSuperlayer()
+            oldPlayer?.pause()
         }
+    }
+
+    private func makeGIFLayer(filePath: String, bounds: CGRect) -> CALayer {
+        let layer = CALayer()
+        layer.frame = CGRect(origin: .zero, size: bounds.size)
+        layer.contentsGravity = getContentsGravity()
+
+        guard let data = FileManager.default.contents(atPath: filePath),
+              let rep = NSBitmapImageRep(data: data),
+              let frameCountVal = rep.value(forProperty: NSBitmapImageRep.PropertyKey.frameCount) as? Int,
+              frameCountVal > 1 else {
+            layer.contents = NSImage(contentsOfFile: filePath)
+            return layer
+        }
+
+        var frames: [CGImage] = []
+        var keyTimes: [NSNumber] = []
+        var totalDuration: Double = 0
+        var cumulative: Double = 0
+
+        for i in 0..<frameCountVal {
+            rep.setProperty(NSBitmapImageRep.PropertyKey.currentFrame, withValue: NSNumber(value: i))
+            let delay = (rep.value(forProperty: NSBitmapImageRep.PropertyKey.currentFrameDuration) as? Double) ?? 0.1
+            keyTimes.append(NSNumber(value: cumulative))
+            totalDuration += delay
+            cumulative += delay
+            if let cg = rep.cgImage {
+                frames.append(cg)
+            }
+        }
+
+        guard !frames.isEmpty, totalDuration > 0 else {
+            layer.contents = NSImage(contentsOfFile: filePath)
+            return layer
+        }
+
+        let normalizedTimes = keyTimes.map { NSNumber(value: $0.doubleValue / totalDuration) }
+
+        layer.contents = frames[0]
+
+        let anim = CAKeyframeAnimation(keyPath: "contents")
+        anim.values = frames
+        anim.keyTimes = normalizedTimes
+        anim.duration = totalDuration
+        anim.repeatCount = .infinity
+        anim.calculationMode = .discrete
+        layer.add(anim, forKey: "gifAnimation")
+
+        return layer
     }
 
     private func setupVisualizer(on window: NSWindow, item: AVPlayerItem) {
@@ -140,6 +378,8 @@ class GlasswpApp: NSObject, NSApplicationDelegate {
         vizBarCount = settings["visualizer_barCount"] as? Int ?? 64
         vizMaxHeight = settings["visualizer_maxHeight"] as? Double ?? 0.5
         vizMinHeight = settings["visualizer_minHeight"] as? Double ?? 4.0
+        scalingMode = settings["scalingMode"] as? String ?? "fill"
+        videoFilter = settings["videoFilter"] as? String ?? "none"
     }
 
     private func registerNotifications() {
@@ -161,6 +401,12 @@ class GlasswpApp: NSObject, NSApplicationDelegate {
             name: Notification.Name("com.naomisphere.moonleaf.autoPauseChanged"),
             object: nil
         )
+        DistributedNotificationCenter.default().addObserver(
+            self,
+            selector: #selector(handleChangeWallpaper(_:)),
+            name: Notification.Name("com.naomisphere.moonleaf.changeWallpaper"),
+            object: nil
+        )
     }
 
     @objc private func handleVolumeChange(_ notification: Notification) {
@@ -172,15 +418,8 @@ class GlasswpApp: NSObject, NSApplicationDelegate {
     @objc private func handleVizSettingsChange() {
         loadVisualizerSettings()
         DispatchQueue.main.async { [weak self] in
-            guard let self = self, let vv = self.vizView else { return }
-            vv.isHidden = (self.vizMode == "disabled")
-            vv.barCount = self.vizBarCount
-            vv.colorMode = self.vizColorMode
-            vv.customColorHex = self.vizCustomColor
-            vv.transparency = self.vizTransparency
-            vv.maxHeight = self.vizMaxHeight
-            vv.minBarHeight = CGFloat(self.vizMinHeight)
-            vv.setNeedsDisplay(vv.bounds)
+            guard let self = self else { return }
+            self.playWallpaper(filePath: self.entryFilePath, fade: false)
         }
     }
 
@@ -199,6 +438,14 @@ class GlasswpApp: NSObject, NSApplicationDelegate {
     }
 
     @objc private func handleWorkspaceChange() {}
+
+    @objc private func handleChangeWallpaper(_ notification: Notification) {
+        if let path = notification.userInfo?["filePath"] as? String {
+            DispatchQueue.main.async {
+                self.playWallpaper(filePath: path, fade: true)
+            }
+        }
+    }
 }
 
 final class RealVisualizerEngine {
@@ -444,43 +691,9 @@ guard FileManager.default.fileExists(atPath: filePath) else {
     exit(1)
 }
 
-let ext = (filePath as NSString).pathExtension.lowercased()
-let isStaticImage = ["jpg", "jpeg", "png", "gif"].contains(ext)
-
 let app = NSApplication.shared
 app.setActivationPolicy(.accessory)
 let delegate = GlasswpApp()
 delegate.entryFilePath = filePath
-
-if isStaticImage {
-    app.delegate = delegate
-    DispatchQueue.main.async {
-        guard let screen = NSScreen.main else { return }
-        let wnd = NSWindow(
-            contentRect: screen.frame,
-            styleMask: .borderless,
-            backing: .buffered,
-            defer: false,
-            screen: screen
-        )
-        wnd.isOpaque = true
-        wnd.backgroundColor = .black
-        wnd.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.desktopWindow)) + 1)
-        wnd.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle]
-        wnd.ignoresMouseEvents = true
-
-        if let img = NSImage(contentsOfFile: filePath) {
-            let iv = NSImageView(frame: screen.frame)
-            iv.image = img
-            iv.imageScaling = .scaleAxesIndependently
-            iv.animates = true
-            wnd.contentView?.addSubview(iv)
-        }
-
-        wnd.makeKeyAndOrderFront(nil)
-    }
-} else {
-    app.delegate = delegate
-}
-
+app.delegate = delegate
 app.run()

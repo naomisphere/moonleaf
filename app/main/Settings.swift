@@ -37,6 +37,9 @@ struct SettingsView: View {
     @State private var visualizer_barCount: Int = 64
     @State private var visualizer_maxHeight: Double = 0.5
     @State private var visualizer_minHeight: Double = 4.0
+    
+    @State private var scalingMode: String = "fill"
+    @State private var videoFilter: String = "none"
 
     private let updater = Updater()
 
@@ -451,6 +454,38 @@ struct SettingsView: View {
                 }
             }
 
+            Section(title: "Playback Effects") {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Wallpaper Scaling")
+                        .font(Font(font_loader.regular(size: 14)))
+                    
+                    Picker("", selection: $scalingMode) {
+                        Text("Fill Screen").tag("fill")
+                        Text("Fit to Screen").tag("fit")
+                        Text("Stretch to Fill").tag("stretch")
+                        Text("Center").tag("center")
+                        Text("Tile").tag("tile")
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    .onChange(of: scalingMode) { _ in saveVisualizerSettings() }
+                    
+                    Text("Video Filter")
+                        .font(Font(font_loader.regular(size: 14)))
+                        .padding(.top, 8)
+                    
+                    Picker("", selection: $videoFilter) {
+                        Text("None").tag("none")
+                        Text("Grayscale").tag("grayscale")
+                        Text("Invert").tag("invert")
+                        Text("Sepia").tag("sepia")
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .onChange(of: videoFilter) { _ in saveVisualizerSettings() }
+                }
+                .padding()
+                .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.05)))
+            }
+
             Section(title: "Audio Visualizer (beta)") {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Visualizer Mode")
@@ -581,6 +616,8 @@ struct SettingsView: View {
         visualizer_barCount = settings["visualizer_barCount"] as? Int ?? 64
         visualizer_maxHeight = settings["visualizer_maxHeight"] as? Double ?? 0.5
         visualizer_minHeight = settings["visualizer_minHeight"] as? Double ?? 4.0
+        scalingMode = settings["scalingMode"] as? String ?? "fill"
+        videoFilter = settings["videoFilter"] as? String ?? "none"
     }
 
     private func saveVisualizerSettings() {
@@ -601,6 +638,8 @@ struct SettingsView: View {
         settings["visualizer_barCount"] = visualizer_barCount
         settings["visualizer_maxHeight"] = visualizer_maxHeight
         settings["visualizer_minHeight"] = visualizer_minHeight
+        settings["scalingMode"] = scalingMode
+        settings["videoFilter"] = videoFilter
 
         if let data = try? JSONSerialization.data(withJSONObject: settings, options: .prettyPrinted) {
             try? FileManager.default.createDirectory(

@@ -352,35 +352,13 @@ class macpaperService: NSObject, ObservableObject {
     }
 
     func set_still_wp(_ wallpaper: endup_wp) {
-        let task = Process()
-        task.launchPath = "/usr/bin/osascript"
-        let script = """
-        tell application "System Events"
-            tell every desktop
-                set picture to POSIX file "\(wallpaper.path)"
-            end tell
-        end tell
-        """
-        task.arguments = ["-e", script]
-        do {
-            try task.run()
-            task.waitUntilExit()
-            if task.terminationStatus == 0 {
-                let home = FileManager.default.homeDirectoryForCurrentUser
-                let current_wp_file = home.appendingPathComponent(".local/share/macpaper/current_wallpaper")
-                try? FileManager.default.createDirectory(
-                    at: current_wp_file.deletingLastPathComponent(),
-                    withIntermediateDirectories: true)
-                try? wallpaper.path.write(to: current_wp_file, atomically: true, encoding: .utf8)
-                DispatchQueue.main.async { self.current_wp = wallpaper.path }
-            }
-        } catch {}
+        set_wp(wallpaper)
     }
 
     func set_wp(_ wallpaper: endup_wp) {
         let ext = (wallpaper.path as NSString).pathExtension.lowercased()
-        let isMoving = ["mov", "mp4", "gif"].contains(ext)
-        let isStill = ["jpg", "jpeg", "png"].contains(ext)
+        let isMoving = ["mov", "mp4"].contains(ext)
+        let isStill = ["jpg", "jpeg", "png", "gif"].contains(ext)
 
         guard isMoving || isStill else { return }
 
@@ -389,13 +367,17 @@ class macpaperService: NSObject, ObservableObject {
         copyWallpaperForScreensaver(wallpaper)
 
         if current_wp != nil {
-            _unset_wp { [weak self] in
-                if isMoving { self?.set_wp_after_unset(wallpaper) }
-                else { self?.set_still_wp(wallpaper) }
+            DistributedNotificationCenter.default().postNotificationName(
+                Notification.Name("com.naomisphere.moonleaf.changeWallpaper"),
+                object: nil,
+                userInfo: ["filePath": wallpaper.path],
+                deliverImmediately: true
+            )
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.current_wp = wallpaper.path
             }
         } else {
-            if isMoving { set_wp_after_unset(wallpaper) }
-            else { set_still_wp(wallpaper) }
+            set_wp_after_unset(wallpaper)
         }
     }
 
