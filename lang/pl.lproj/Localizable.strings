@@ -1,0 +1,165 @@
+"mgr_title" = "moonleaf";
+"mgr_wp_title" = "tapety";
+"mgr_browse_title" = "przeglądaj";
+"add_wallpaper" = "dodaj tapetę";
+"persist" = "zachowaj";
+"unset_current" = "usuń bieżącą";
+"refresh" = "odśwież";
+"loading_wallpapers" = "ładowanie tapet...";
+"scanning_files" = "skanowanie w poszukiwaniu plików";
+"no_wallpapers_found" = "nie znaleziono tapet";
+"drop_files_or_add" = "upuść tutaj pliki lub kliknij 'dodaj tapetę'";
+"supported_formats" = "obsługiwane formaty: .mp4, .mov, .gif, .png, .jpg, .jpeg";
+"set_wallpaper" = "ustaw tapetę";
+"gif_format" = "gif";
+"video_format" = "wideo";
+
+"filter" = "filtr";
+"show_types" = "Pokaż";
+"show_videos" = "Wideo";
+"show_images" = "Obrazy";
+
+"sb_no_wallpapers" = "Nie znaleziono tapet";
+"sb_wallpapers" = "Tapety";
+"sb_large_count" = "%d więcej...";
+"sb_perst_enabled" = "Trwałość Włączona";
+"sb_enable_perst" = "Włącz Trwałość";
+"sb_unset_wp" = "Wyłącz Żywą Tapetę";
+"sb_show_all" = "Pokaż Wszystko...";
+"sb_refresh" = "Odśwież";
+"sb_open_mgr" = "Otwórz Menedżera";
+"sb_settings" = "Ustawienia";
+"sb_about" = "O moonleaf";
+"sb_about_text" = "Wersja %@ (%@)\n\nMenedżer Tapet dla macOS";
+"sb_about_github" = "GitHub";
+"sb_about_kofi" = "Wesprzyj na Ko-fi";
+"sb_perst_tooltip" = "Automatycznie włącz tapetę na starcie systemu";
+"sb_quit" = "Zamknij moonleaf";
+
+"mgr_settings" = "ustawienia";
+"settings" = "Ustawienia";
+"cfg_auto_pause" = "Inteligentne Odtwarzanie";
+"cfg_auto_pause_desc" = "Zatrzymaj odtwarzanie kiedy aplikacje są w pełnym ekranie";
+
+"browse_save" = "Zapisz";
+"browse_cancel" = "Anuluj";
+"browse_search_placeholder" = "Szukaj tapet...";
+"browse_filters" = "Filtry";
+"browse_category" = "Kategoria";
+"browse_purity" = "Przyzwoitość";
+"browse_sort" = "Sortuj według";
+"browse_desc" = "Malejąco";
+"browse_asc" = "Rosnąco";
+"browse_apply" = "Zastosuj Filtry";
+"browse_loading" = "Ładowanie tapet...";
+"browse_no_results" = "Nie znaleziono tapet";
+"browse_try_search" = "Zmień wyszukiwanie lub filtry";
+"browse_provider" = "Źródła";
+"browse_wallhaven" = "Wallhaven";
+"browse_local" = "Biblioteka Lokalna";
+"browse_resolution" = "Rozdzielczość";
+"filter_resolution_all" = "Wszystko";
+"browse_download" = "Pobierz Tapetę";
+"export_wallpaper" = "Eksportuj Tapetę";
+"export_error" = "Błąd Eksportu";
+"export_original" = "Rozmiar Oryginalny";
+"export_iphone_header" = "iPhone";
+"export_iphone_15_pro_max" = "iPhone 15 Pro Max (1290×2796)";
+"export_iphone_15_pro" = "iPhone 15 Pro (1179×2556)";
+"export_iphone_14_pro" = "iPhone 14 Pro (1179×2556)";
+"export_iphone_13_pro" = "iPhone 13 Pro (1170×2532)";
+"export_iphone_se" = "iPhone SE (750×1334)";
+"export_ipad_header" = "iPad";
+"export_ipad_pro_12" = "iPad Pro 12.9\" (2732×2048)";
+"export_ipad_pro_11" = "iPad Pro 11\" (2388×1668)";
+"export_desktop_header" = "Komputer";
+"export_4k" = "4K UHD (3840×2160)";
+"export_1440p" = "1440p (2560×1440)";
+"export_1080p" = "1080p (1920×1080)";
+"export_ultrawide" = "Ultrawide 21:9 (3440×1440)";
+
+"sort_date" = "Data dodania";
+"sort_relevance" = "Trafność";
+"sort_random" = "Losowo";
+"sort_views" = "Wyświetlenia";
+"sort_favorites" = "Ulubione";
+"sort_top" = "Najlepsze";
+
+"purity_all" = "Wszystko";
+
+"category_general" = "Ogólne";
+"category_anime" = "Anime";
+"category_people" = "Ludzie";
+"category_all" = "Wszystko";
+
+"settings_general" = "Ogólne";
+"settings_startup" = "Uruchamianie";
+"settings_auto_start" = "Uruchom od razu";
+"settings_auto_start_desc" = "Automatycznie włącz moonleaf przy starcie systemu";
+"settings_updates" = "Aktualizowanie";
+"settings_check_updates" = "Sprawdzaj Aktualizacje";
+"settings_check_updates_desc" = "Sprawdzaj Aktualizacje przy uruchomieniu";
+"settings_update_log" = "Lista Zmian";
+"settings_export" = "Eksport";
+"settings_export_folder" = "Katalog Eksportu";
+"settings_export_folder_desc" = "Wybierz katalog gdzie wyeksportowane tapety będą zapisywane";
+"settings_export_folder_default" = "Folder Pictures";
+"settings_choose_folder" = "Wybierz Katalog";
+"settings_reset_folder" = "Resetuj";
+
+"settings_screensaver" = "Wygaszacz Ekranu";
+"settings_use_screensaver" = "-";
+"settings_use_screensaver_desc" = "-";
+"settings_screensaver_hint" = "-";
+
+"settings_manager" = "Menedżer";
+"settings_playback" = "Odtwarzanie";
+"settings_appearance" = "Wygląd";
+"settings_glass_bg" = "Niewidzialne Tło";
+"settings_glass_bg_desc" = "Ukryj tło z okna menedżera (wymaga restartu)";
+
+"settings_behavior" = "Zachowanie Odtwarzania";
+"settings_volume" = "Głośność Odtwarzania";
+"settings_default_volume" = "Głośność Domyślna";
+
+"settings_shuffle" = "Losuj Tapety";
+"settings_shuffle_desc" = "Automatyczna rotacja tapet z Twojej biblioteki";
+"settings_shuffle_interval" = "Zmieniaj co";
+"shuffle_interval_15min" = "15 minut";
+"shuffle_interval_1hr" = "1 godzinę";
+"shuffle_interval_3hr" = "3 godziny";
+"shuffle_interval_daily" = "Codziennie";
+
+"settings_sort" = "Domyślne sortowanie";
+"sort_by_date" = "Data dodania";
+"sort_by_name" = "Nazwa";
+"sort_by_size" = "Wielkość pliku";
+
+"settings_api_key" = "Klucz API Wallhaven";
+"settings_api_key_description" = "Eksperyment. Wyczyść jeśli nie działa.";
+"settings_enter_api_key" = "Wstaw Klucz API";
+"settings_save" = "Zapisz";
+"settings_cancel" = "Anuluj";
+"settings_no_api_key" = "Nie ustawiono klucza API";
+"settings_api_key_set" = "Klucz API jest ustawiony";
+"settings_add_api_key" = "Dodaj Klucz API";
+"settings_change_api_key" = "Zmień";
+"settings_invalid_api_key" = "Nieprawidłowy klucz API";
+
+"download_options_title" = "Ustawienia Pobierania";
+"download_original" = "Pobierz Oryginał";
+"download_custom_ratio" = "Niestandardowe Proporcje";
+"download_custom_title" = "Własne Pobieranie";
+"download_custom_desc" = "Wybierz urządzenie żeby przyciąć obraz";
+"crop_editor_title" = "Przytnij Obraz";
+"crop_zoom" = "Przybliżenie";
+"crop_apply" = "Ustaw";
+"settings_change_folder" = "Zmień Katalog";
+"settings_select_folder" = "Wybierz Katalog";
+"export_aspect_ratio" = "Proporcje";
+
+"favorites_filter" = "Ulubione";
+"show_favorites" = "Tylko Ulubione";
+"show_all_wallpapers" = "Wszystkie Tapety";
+"no_favorites" = "Brak ulubionych... na razie";
+"no_favorites_desc" = "Kliknij gwiazdę na dowolnej tapecie aby dodać do ulubionych";
