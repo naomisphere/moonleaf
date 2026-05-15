@@ -618,7 +618,7 @@ private func findButton(with title: String, in view: NSView) -> NSButton? {
     
     private func delete_wp(_ wallpaper: endup_wp) {
         do {
-            try FileManager.default.removeItem(atPath: wallpaper.path)
+            try FileManager.default.trashItem(at: URL(fileURLWithPath: wallpaper.path), resultingItemURL: nil)
             service.fetch_wallpapers()
         } catch {
             print("while deleting wallpaper: \(error)")
